@@ -1,0 +1,8 @@
+.appointments-container
+{
+    background-color: #000000;
+    display: flex;
+    justify-content: space-between; /* căn ngang */
+    align-items: center;
+    font-size: 17px;           /* căn dọc */
+}
