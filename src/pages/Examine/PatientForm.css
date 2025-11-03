@@ -1,0 +1,63 @@
+.patient-form-container {
+  width: 90%;
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 20px;
+  background: transparent; /* để hòa vào bottomsheet */
+  color: #222; /* hoặc #222 nếu background sheet sáng */
+}
+
+.form-title {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.patient-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.form-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.form-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+label {
+  font-size: 0.95rem;
+}
+
+input {
+  padding: 6px 10px;
+  border: 1px solid #777;
+  border-radius: 5px;
+  background-color: #fff;
+  color: #000;
+}
+
+.submit-btn {
+  margin-top: 20px;
+  align-self: center;
+  padding: 8px 18px;
+  border: none;
+  border-radius: 6px;
+  background-color: #0078ff;
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.submit-btn:hover {
+  background-color: #005fd1;
+}

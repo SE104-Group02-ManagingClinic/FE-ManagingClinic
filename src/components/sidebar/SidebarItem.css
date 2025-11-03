@@ -62,13 +62,13 @@ opacity:0%;
 .home .indicator {
   background-color: #66bb6a; /* Xanh lá */
 }
-.appointments .indicator {
+.settings .indicator {
   background-color: #ffca28; /* Vàng */
 }
-.patients .indicator {
+.medicines .indicator {
   background-color: #4fc3f7; /* Xanh dương nhạt */
 }
-.medicines .indicator {
+.examine .indicator {
   background-color: #ef5350; /* Đỏ */
 }
 .statistics .indicator {
