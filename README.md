@@ -2,8 +2,7 @@
 ### Hướng dẫn setup
 1. Clone project
 2. Cài đặt các dependency: npm install
-3. Chạy project: npm start
-Lúc chạy nhớ lưu ý phải đứng ở thư mục có file "package.json"
+3. Chạy project: npm start; lúc chạy nhớ lưu ý phải đứng ở thư mục có file "package.json"
 ### Các API đã handle:
 1. Tạo bệnh nhân
 ### QUY TẮC LÀM VIỆC TRÊN GITHUB
