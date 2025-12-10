@@ -1,86 +1,115 @@
-import React, { use, useState } from "react";
+import React, { use, useState, useEffect } from "react";
 import "./Examine.css";
-import BottomSheet from "../BottomSheet/BottomSheet";
 import ExamineTicket from "../Examine/ExamineTicket";
-import PatientForm from "./PatientForm"
 import PatientTicket from "../Examine/PatientTicket";
-import ExamineForm from "../Examine/ExamineForm";
-import SearchPatient from "./SearchPatient";
+import SideSheet from "../SideSheet/SideSheet";
+import PatientDetail from "./PatientDetail";
+import { useBottomSheet } from "../../contexts/BottomSheetContext";
+import { getAllPatients } from "../../api/patientApi";
 
 const Examine = () => {
-    const [openExamine, setOpenExamine] = useState(false);
-    const [openPatient, setOpenPatient] = useState(false);
-    const [openSearch, setOpenSearch] = useState(false);
+    const { bottomSheetState, setBottomSheetState } = useBottomSheet();
+    const [patients, setPatients] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+    const [selectedPatient, setSelectedPatient] = useState(null);
+    const [sideSheetOpen, setSideSheetOpen] = useState(false);
+
     // Tạo danh sách demo để dễ thấy hiệu ứng scroll
     const tickets = [
         { id: 1, name: "Nguyễn Văn A", disease: "Cảm cúm", date: "25/10/2025" },
         { id: 2, name: "Trần Thị B", disease: "Đau đầu", date: "24/10/2025" },
     ];
 
-    const patients = [
-        { id: 1, name: "Nguyễn Văn A", gender: "Nam", age: 30 },
-        { id: 2, name: "Trần Thị B", gender: "Nữ", age: 27 },
-    ];
-    return (
-        <>
-            <div className={`examine-container ${openExamine || openPatient || openSearch ? "shrink" : ""}`}>
-                <div className="patients">
-                    <div className="header">
-                        <h2 className="title">Danh sách bệnh nhân</h2>
-                        <div className="tools">
-                            <h2 onClick={() => setOpenPatient(true)}>+</h2>
-                            <h2 onClick={() => setOpenSearch(true)}>🔍</h2>
-                        </div>
-                    </div>
+    // Load danh sách bệnh nhân khi component mount
+    useEffect(() => {
+        const fetchPatients = async () => {
+            try {
+                setLoading(true);
+                const data = await getAllPatients();
+                setPatients(data);
+                setError("");
+            } catch (err) {
+                console.error("Lỗi khi load danh sách bệnh nhân:", err);
+                setError(err.message || "Lỗi khi load danh sách bệnh nhân");
+                setPatients([]);
+            } finally {
+                setLoading(false);
+            }
+        };
 
-                    <div className="scroll-list">
-                        {patients.map((patient) => (
-                            <PatientTicket
-                                key={patient.id}
-                                name={patient.name}
-                                gender={patient.gender}
-                                age={patient.age}
-                            />
-                        ))}
+        fetchPatients();
+    }, []);
+
+    const handleOpenExamine = () => {
+        setBottomSheetState(prev => ({...prev, examineExamine: true}));
+    };
+
+    const handleOpenPatient = () => {
+        setBottomSheetState(prev => ({...prev, examinePatient: true}));
+    };
+
+    const handleOpenSearch = () => {
+        setBottomSheetState(prev => ({...prev, examineSearch: true}));
+    };
+
+    const handleSelectPatient = (patient) => {
+        setSelectedPatient(patient);
+        setSideSheetOpen(true);
+    };
+
+    return (
+        <div className="examine-container">
+            <div className="patients">
+                <div className="header">
+                    <h2 className="title">Danh sách bệnh nhân</h2>
+                    <div className="tools">
+                        <h2 onClick={handleOpenPatient}>+</h2>
+                        <h2 onClick={handleOpenSearch}>🔍</h2>
                     </div>
                 </div>
 
-                <div className="examinetickets">
-                    <div className="header">
-                        <h2 className="title">Danh sách phiếu khám</h2>
-                        <div className="tools">
-                            <h2 onClick={() => setOpenExamine(true)}>+</h2>
-                            <h2 onClick={() => setOpenSearch(true)}>🔍</h2>
-                        </div>
-                    </div>
-                    <div className="scroll-list">
-                        {tickets.map((ticket) => (
-                            <ExamineTicket
-                                key={ticket.id}
-                                name={ticket.name}
-                                disease={ticket.disease}
-                                date={ticket.date}
-                            />
-                        ))}
-                    </div>
+                <div className="scroll-list">
+                    {loading && <p style={{ color: "#fff", textAlign: "center" }}>Đang tải...</p>}
+                    {error && <p style={{ color: "#ff6b6b", textAlign: "center" }}>{error}</p>}
+                    {!loading && patients.length === 0 && !error && <p style={{ color: "#fff", textAlign: "center" }}>Không có bệnh nhân</p>}
+                    {patients.map((patient) => (
+                        <PatientTicket
+                            key={patient.MaBN}
+                            patient={patient}
+                            name={patient.HoTen}
+                            gender={patient.GioiTinh}
+                            age={patient.NamSinh}
+                            onClick={() => handleSelectPatient(patient)}
+                        />
+                    ))}
                 </div>
             </div>
-            
-            {/* BottomSheet 1 - Phiếu khám */}
-            <BottomSheet isOpen={openExamine} onClose={() => setOpenExamine(false)}>
-                <ExamineForm />
-            </BottomSheet>
 
-            {/* BottomSheet 2 - Thêm bệnh nhân */}
-            <BottomSheet isOpen={openPatient} onClose={() => setOpenPatient(false)}>
-                <PatientForm />
-            </BottomSheet>
+            <div className="examinetickets">
+                <div className="header">
+                    <h2 className="title">Danh sách phiếu khám</h2>
+                    <div className="tools">
+                        <h2 onClick={handleOpenExamine}>+</h2>
+                        <h2 onClick={handleOpenSearch}>🔍</h2>
+                    </div>
+                </div>
+                <div className="scroll-list">
+                    {tickets.map((ticket) => (
+                        <ExamineTicket
+                            key={ticket.id}
+                            name={ticket.name}
+                            disease={ticket.disease}
+                            date={ticket.date}
+                        />
+                    ))}
+                </div>
+            </div>
 
-            {/* BottomSheet 3 - Tìm kiếm bệnh nhân */}
-            <BottomSheet isOpen={openSearch} onClose={() => setOpenSearch(false)}>
-                <SearchPatient />
-            </BottomSheet>
-        </>
+            <SideSheet isOpen={sideSheetOpen} onClose={() => setSideSheetOpen(false)}>
+                <PatientDetail patient={selectedPatient} />
+            </SideSheet>
+        </div>
     );
 };
 

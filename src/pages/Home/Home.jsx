@@ -4,42 +4,33 @@ import ProfileCard from "../../components/profile/ProfileCard";
 import AppointmentCard from "../../components/cards/ExamineCard";
 import Sidebar from "../../components/sidebar/Sidebar";
 import ButtonHome from "../../components/buttons/ButtonHome";
-import BottomSheet from "../BottomSheet/BottomSheet";
-import ExamineTicket from "../Examine/ExamineTicket";
-import ExamineForm from "../Examine/ExamineForm";
-import Patient from "../Examine/PatientForm";
-import PatientForm from "../Examine/PatientForm";
+import { useBottomSheet } from "../../contexts/BottomSheetContext";
 
 const Home = () => {
-  const [openExamine, setOpenExamine] = useState(false);
-  const [openPatient, setOpenPatient] = useState(false);
+  const { bottomSheetState, setBottomSheetState } = useBottomSheet();
+
+  const handleOpenExamine = () => {
+    setBottomSheetState(prev => ({...prev, homeExamine: true}));
+  };
+
+  const handleOpenPatient = () => {
+    setBottomSheetState(prev => ({...prev, homePatient: true}));
+  };
 
   return (
-    <>
-      <div className={`home-container ${openExamine || openPatient ? "shrink" : ""}`}>
-        <div className="MainScreen">
-          <div className="UpcommingAppointments">
-            <AppointmentCard patient="Nguyễn Văn A" disease="Cảm cúm" />
-            <AppointmentCard patient="Trần Thị B" disease="Đau đầu" />
-          </div>
+    <div className="home-container">
+      <div className="MainScreen">
+        <div className="UpcommingAppointments">
+          <AppointmentCard patient="Nguyễn Văn A" disease="Cảm cúm" />
+          <AppointmentCard patient="Trần Thị B" disease="Đau đầu" />
+        </div>
 
-          <div className="Buttons">
-            <ButtonHome label="Phiếu khám bệnh mới" onClick={() => setOpenExamine(true)} />
-            <ButtonHome label="Hồ sơ bệnh nhân mới" onClick={() => setOpenPatient(true)} />
-          </div>
+        <div className="Buttons">
+          <ButtonHome label="Phiếu khám bệnh mới" onClick={handleOpenExamine} />
+          <ButtonHome label="Hồ sơ bệnh nhân mới" onClick={handleOpenPatient} />
         </div>
       </div>
-
-      {/* BottomSheet 1 - Phiếu khám */}
-      <BottomSheet isOpen={openExamine} onClose={() => setOpenExamine(false)}>
-        <ExamineForm/>
-      </BottomSheet>
-
-      {/* BottomSheet 2 - Tra cứu */}
-      <BottomSheet isOpen={openPatient} onClose={() => setOpenPatient(false)}>
-        <PatientForm/>
-      </BottomSheet>
-    </>
+    </div>
   );
 };
 

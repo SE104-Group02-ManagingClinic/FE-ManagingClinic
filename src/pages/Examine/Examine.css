@@ -10,7 +10,6 @@
     padding: 20px;
     width:100%;
     box-sizing: border-box;
-    transition: transform 0.3s ease, filter 0.4s ease;
     overflow: hidden;
     position: relative;
 }
@@ -84,9 +83,4 @@
 h2
 {
     cursor:pointer
-}
-.shrink 
-{
-    transform: scale(0.95) translateY(-50px);
-    filter: brightness(0.8);
 }

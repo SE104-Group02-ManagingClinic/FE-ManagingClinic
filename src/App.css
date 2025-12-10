@@ -41,3 +41,39 @@
     transform: scale(0.95) translateY(-50px);
     filter: brightness(0.8);
 }
+
+.MainScreen {
+  height: match-parent;
+  width: auto;
+  display: flex;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.app-container {
+  transition: transform 0.3s ease;
+  position: relative;
+}
+
+.app-container.shrink {
+  transform: scale(0.95) translateY(-50px);
+}
+
+/* Backdrop overlay */
+.app-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.2);
+  z-index: 99;
+  pointer-events: none;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    background-color: rgba(0, 0, 0, 0);
+  }
+  to {
+    background-color: rgba(0, 0, 0, 0.2);
+  }
+}

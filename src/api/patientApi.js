@@ -144,3 +144,25 @@ export const deletePatient = async (MaBN) => {
   // ✅ 200 OK
   return response.json();
 };
+
+/**
+ * Lấy danh sách tất cả bệnh nhân
+ * @returns {Promise<Array>} Danh sách tất cả bệnh nhân
+ */
+export const getAllPatients = async () => {
+  const response = await fetch("/api/patient/getAllPatients", {
+    method: "GET",
+    headers: {
+      "Accept": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    // 500 hoặc lỗi khác
+    const data = await response.json();
+    throw new Error(data.error || "Lỗi hệ thống");
+  }
+
+  // ✅ 200 OK
+  return response.json();
+};
