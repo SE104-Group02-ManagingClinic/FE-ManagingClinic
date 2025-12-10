@@ -36,3 +36,8 @@
     transform: rotate(360deg);
   }
 }
+.shrink 
+{
+    transform: scale(0.95) translateY(-50px);
+    filter: brightness(0.8);
+}

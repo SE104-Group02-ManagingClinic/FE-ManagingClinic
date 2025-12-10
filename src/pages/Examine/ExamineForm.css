@@ -1,0 +1,94 @@
+.ticket-container {
+  background-color: #fff;
+  color: #000;
+  padding: 16px;
+  border-radius: 8px;
+  font-size: 15px;
+  line-height: 1.5;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.ticket-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 4px;
+  margin-bottom: 10px;
+}
+
+
+
+.ticket-info {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.ticket-info label {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.ticket-info .left {
+  width: 58%;
+}
+.ticket-info .right {
+  width: 38%;
+}
+
+.ticket-info input,
+.ticket-info textarea {
+  width: 100%;
+  margin-top: 2px;
+  padding: 4px 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  resize: vertical;
+}
+
+/* bảng thuốc */
+.ticket-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 8px;
+}
+
+.ticket-table th,
+.ticket-table td {
+  border: 1px solid #aaa;
+  text-align: center;
+  padding: 4px;
+}
+
+.ticket-table input {
+  width: 95%;
+  border: none;
+  text-align: center;
+  outline: none;
+}
+
+/* tổng tiền */
+.ticket-total {
+  text-align: right;
+  font-weight: bold;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+}
+
+.ticket-total input {
+  width: 150px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 4px;
+  text-align: right;
+}

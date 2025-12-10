@@ -1,0 +1,76 @@
+.sidebar-item
+{
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    min-height: 10px;
+    height: 55px;
+    padding: 10px;
+    align-items: center;
+    justify-content: flex-start;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.sidebar-item-label {
+    display: flex;
+    color: #ffffff;
+    min-height: 40px;
+    min-width: 50px;
+    height:100%;
+    width: 70%;
+    padding: 10px;
+    margin: 0;
+    align-items: center;
+    justify-content: flex-start;
+}
+.sidebar-item-icon {
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 10px;
+    min-width: 10px;
+    height: 100%;
+    width:20%
+}
+.indicator {
+  /*position: absolute; */            /* để có thể đặt top/left độc lập */
+  left: 0;                    /* căn giữa theo chiều dọc */
+  width: 5px;
+  height: 20%;                    /* kích thước tối đa khi hiện */
+  border-radius: 2px;
+    transition:
+    height 0.1s ease,
+    transform 0.1s ease, 
+    opacity 0.4s ease;
+opacity:0%;
+}
+.sidebar-item:hover {
+  background-color: rgba(255, 255, 255, 0.1); /* Màu nền khi hover */
+}
+.sidebar-item:hover .indicator {    
+  height: 35%;
+  transform: translateY(0%) scaleY(1.3);
+  opacity:100%       /* khi hover thì kéo dài full */
+}
+.sidebar-item:active .indicator {
+  height: 60%;
+  transform: translateY(0%) scaleY(1.4);
+  opacity:100%       /* khi hover thì kéo dài full */
+}
+.home .indicator {
+  background-color: #66bb6a; /* Xanh lá */
+}
+.settings .indicator {
+  background-color: #ffca28; /* Vàng */
+}
+.medicines .indicator {
+  background-color: #4fc3f7; /* Xanh dương nhạt */
+}
+.examine .indicator {
+  background-color: #ef5350; /* Đỏ */
+}
+.statistics .indicator {
+  background-color: #ab47bc; /* Tím */
+}

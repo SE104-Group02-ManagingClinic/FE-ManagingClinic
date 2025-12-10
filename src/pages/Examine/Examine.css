@@ -1,0 +1,92 @@
+
+.examine-container {
+    background-color: #000;
+    display: flex;
+    flex-direction: row;
+    justify-content:flex-start;
+    align-items: stretch;   /* Hai cột bằng chiều cao nhau */
+    height: 100vh;          /* Chiếm toàn màn hình */
+    font-size: 17px;
+    padding: 20px;
+    width:100%;
+    box-sizing: border-box;
+    transition: transform 0.3s ease, filter 0.4s ease;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Mỗi cột chiếm nửa màn hình */
+.examinetickets, .patients {
+    width: 48%;
+    background-color: #1a1a1a;
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    margin: 10px;
+}
+
+.header
+{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+.title
+{
+    width:60%;
+    margin: 10px;
+}
+/* Vùng cuộn riêng cho từng cột */
+.scroll-list {
+    flex: 1;
+    overflow-y: auto;
+    margin-top: 10px;
+    padding-right: 8px; /* để tránh tràn chữ khi có scrollbar */
+}
+
+/* scrollbar thẩm mỹ hơn */
+.scroll-list::-webkit-scrollbar {
+    width: 6px;
+}
+.scroll-list::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 127, 80, 0.6);
+    border-radius: 3px;
+}
+.scroll-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+/* Item trong danh sách */
+.list-item {
+    background-color: rgba(255, 127, 80, 0.25);
+    padding: 12px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    color: #fff;
+}
+
+.tools
+{
+    width:15%;
+    display:flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+/* Tiêu đề */
+.examinetickets h2, .patients h2 {
+    color: #ff7f50;
+    text-align: center;
+}
+h2
+{
+    cursor:pointer
+}
+.shrink 
+{
+    transform: scale(0.95) translateY(-50px);
+    filter: brightness(0.8);
+}

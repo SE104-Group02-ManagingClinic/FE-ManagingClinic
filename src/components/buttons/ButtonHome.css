@@ -1,0 +1,42 @@
+.button-home
+{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    margin:20px;
+}
+.button
+{
+    height: 70%;
+    width: 100%;
+    border-radius: 30px;
+    padding: 10px;
+    margin: 5px;
+    background-color: rgb(160, 253, 176);
+    font-size: large;
+}
+.indicator-button {
+  height: 5px;
+  width: 5px;
+  border-radius: 2px;
+  background-color: rgb(34, 139, 34);
+  opacity: 0; /* nên dùng 0 thay vì 0% */
+  transition:
+    width 0.1s ease,
+    opacity 0.4s ease; /* thêm fade mượt */
+}
+
+.button-home:hover .indicator-button {
+  width: 50%;
+  background-color: rgb(100, 187, 106);
+  opacity: 1;
+}
+
+.button-home:active .indicator-button {
+  width: 80%;
+  background-color: rgb(100, 187, 106);
+  opacity: 1;
+}
