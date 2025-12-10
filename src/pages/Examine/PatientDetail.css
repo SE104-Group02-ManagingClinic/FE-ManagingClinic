@@ -1,0 +1,38 @@
+.patient-detail {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.patient-detail h2 {
+  color: #ff7f50;
+  font-size: 20px;
+  margin: 0 0 15px 0;
+  text-align: center;
+  border-bottom: 2px solid #ff7f50;
+  padding-bottom: 10px;
+}
+
+.detail-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.detail-section label {
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+}
+
+.detail-section p {
+  background-color: #f5f5f5;
+  padding: 12px;
+  border-radius: 8px;
+  color: #555;
+  margin: 0;
+  font-size: 14px;
+  border-left: 4px solid #ff7f50;
+}
