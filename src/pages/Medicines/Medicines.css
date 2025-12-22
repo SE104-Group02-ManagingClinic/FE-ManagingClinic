@@ -1,113 +1,501 @@
-/* Thiết lập nền chung cho giao diện tối */
-.orders-container {
-    background-color: #121212; /* Nền tối */
-    color: #e0e0e0; /* Chữ sáng */
-    padding: 20px;
-    font-family: Arial, sans-serif;
-    max-width: 900px;
-    margin: 20px auto;
-    border-radius: 8px;
+/* Medicines.css - Dark Theme */
+
+.medicines-container {
+  padding: 24px;
+  min-height: 100vh;
+  height: 100%;
+  width: 100%;
+  color: #e0e0e0;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
 }
 
-.orders-header {
-    font-size: 1.5rem;
-    font-weight: 500;
-    margin-bottom: 20px;
-    color: #ffffff;
+.medicines-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
 }
 
-/* Bọc bảng để quản lý overflow nếu cần */
-.orders-table-wrapper {
-    width: 100%;
-    overflow-x: auto;
+.medicines-header h2 {
+  margin: 0;
+  color: #afe2ff;
+  font-size: 28px;
 }
 
-.orders-table {
-    width: 100%;
-    border-collapse: collapse; /* Gộp các đường viền */
-    table-layout: fixed; /* Giúp các cột có chiều rộng ổn định */
+/* Tab Navigation - Medicines specific */
+.medicines-container .tabs-navigation {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #333;
 }
 
-/* Định dạng tiêu đề bảng */
-.orders-table thead th {
-    color: #9e9e9e; /* Màu chữ xám nhạt */
-    font-weight: 400;
-    text-align: left;
-    padding: 12px 16px;
-    font-size: 0.85rem;
-    border-bottom: 1px solid #333333; /* Đường kẻ dưới đầu bảng */
-    text-transform: uppercase;
+.medicines-container .tab-button {
+  padding: 12px 20px;
+  background: transparent;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 15px;
+  border-bottom: 3px solid transparent;
+  transition: all 0.3s ease;
+  position: relative;
+  bottom: -2px;
 }
 
-/* Định dạng các hàng dữ liệu */
-.orders-table tbody tr {
-    border-bottom: 1px solid #282828; /* Đường kẻ phân cách giữa các hàng */
-    transition: background-color 0.1s;
+.medicines-container .tab-button:hover {
+  color: #ccc;
 }
 
-/* Hiệu ứng hover (tùy chọn) */
-.orders-table tbody tr:hover {
-    background-color: #1e1e1e;
+.medicines-container .tab-button.active {
+  color: #afe2ff;
+  border-bottom-color: #afe2ff;
 }
 
-/* Định dạng ô dữ liệu */
-.orders-table tbody td {
+/* Tab Content - Medicines specific */
+.medicines-container .tab-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 16px;
+}
+
+.medicines-container .tab-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 16px;
+}
+
+.medicines-container .btn-add {
+  padding: 12px 24px;
+  background: #afe2ff;
+  color: #0b0f14;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 15px;
+  transition: background 0.3s;
+  align-self: flex-start;
+}
+
+.medicines-container .btn-add:hover {
+  background: #8fc9e8;
+}
+
+.medicines-container .alert {
+  padding: 12px 16px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.medicines-container .alert-error {
+  background: #3a1a1a;
+  border: 1px solid #8b3a3a;
+  color: #ff6b6b;
+}
+
+.medicines-container .alert-success {
+  background: #1a3a1a;
+  border: 1px solid #3a8b3a;
+  color: #51cf66;
+}
+
+.medicines-container .loading {
+  text-align: center;
+  padding: 40px;
+  font-size: 18px;
+  color: #a0a0a0;
+}
+
+.medicines-container .table-wrapper,
+.medicines-container .medicines-table-wrapper {
+  overflow-x: auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.medicines-container .data-table,
+.medicines-container .medicines-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #1a1f26;
+}
+
+.medicines-container .data-table thead,
+.medicines-container .medicines-table thead {
+  background: #2a3f5f;
+  color: #e0e0e0;
+}
+
+.medicines-container .data-table th,
+.medicines-container .medicines-table th {
+  padding: 16px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #afe2ff;
+}
+
+.medicines-container .data-table td,
+.medicines-container .medicines-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #2a3f5f;
+  font-size: 14px;
+  color: #d0d0d0;
+}
+
+.medicines-container .data-table tbody tr:hover,
+.medicines-container .medicines-table tbody tr:hover {
+  background: #252d36;
+}
+
+.medicines-container .data-table tbody tr:last-child td,
+.medicines-container .medicines-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.medicines-container .action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.medicines-container .btn-edit-small,
+.medicines-container .btn-delete-small {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.3s;
+}
+
+.medicines-container .btn-edit-small {
+  background: #4CAF50;
+  color: white;
+}
+
+.medicines-container .btn-edit-small:hover {
+  background: #45a049;
+}
+
+.medicines-container .btn-delete-small {
+  background: #f44336;
+  color: white;
+}
+
+.medicines-container .btn-delete-small:hover {
+  background: #da190b;
+}
+
+/* BottomSheet Form Container */
+.medicine-form-container {
+  padding: 0;
+  background: #ffffff;
+  color: #333;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.medicine-form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 2px solid #e0e0e0;
+  background: #ffffff;
+  flex-shrink: 0;
+}
+
+.medicine-form-header h3 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 22px;
+}
+
+.medicine-form-body {
+  flex: 1;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.btn-close {
+  background: none;
+  border: none;
+  font-size: 32px;
+  color: #95a5a6;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.3s;
+  flex-shrink: 0;
+}
+
+.btn-close:hover {
+  color: #2c3e50;
+}
+
+.medicine-form-body form {
+  padding: 24px;
+  padding-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.form-group {
+  margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #555;
+  font-size: 14px;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: inherit;
+  background: #ffffff;
+  color: #333;
+  transition: border-color 0.3s;
+  box-sizing: border-box;
+  resize: none;
+}
+
+.form-group select {
+  cursor: pointer;
+}
+
+.form-group textarea {
+  overflow-y: auto;
+  max-height: 100px;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: #999;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #3498db;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 0;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 12px;
+  padding-top: 16px;
+  border-top: 1px solid #e0e0e0;
+  flex-shrink: 0;
+}
+
+.btn-submit {
+  padding: 10px 24px;
+  background: #27ae60;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 15px;
+  transition: background 0.3s;
+}
+
+.btn-submit:hover {
+  background: #229954;
+}
+
+.btn-submit:disabled {
+  background: #95a5a6;
+  cursor: not-allowed;
+}
+
+.btn-cancel {
+  padding: 10px 24px;
+  background: #95a5a6;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 15px;
+  transition: background 0.3s;
+}
+
+.btn-cancel:hover {
+  background: #7f8c8d;
+}
+
+/* SideSheet Detail Container */
+.medicine-detail-container {
+  padding: 0;
+  background: #1a1f26;
+  color: #e0e0e0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.medicine-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 2px solid #2a3f5f;
+  background: #1a1f26;
+}
+
+.medicine-detail-header h3 {
+  margin: 0;
+  color: #afe2ff;
+  font-size: 22px;
+}
+
+.medicine-detail-body {
+  padding: 24px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.detail-row {
+  display: flex;
+  padding: 16px 0;
+  border-bottom: 1px solid #2a3f5f;
+}
+
+.detail-row.full-width {
+  flex-direction: column;
+}
+
+.detail-label {
+  font-weight: 600;
+  color: #a0a0a0;
+  min-width: 140px;
+  font-size: 14px;
+}
+
+.detail-row.full-width .detail-label {
+  margin-bottom: 8px;
+}
+
+.detail-value {
+  color: #e0e0e0;
+  flex: 1;
+  font-size: 14px;
+}
+
+.detail-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 2px solid #2a3f5f;
+}
+
+.btn-edit,
+.btn-delete {
+  flex: 1;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 15px;
+  transition: all 0.3s;
+}
+
+.btn-edit {
+  background: #4CAF50;
+  color: white;
+}
+
+.btn-edit:hover {
+  background: #45a049;
+}
+
+.btn-delete {
+  background: #f44336;
+  color: white;
+}
+
+.btn-delete:hover {
+  background: #da190b;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .medicines-container {
     padding: 16px;
-    font-size: 0.95rem;
-    vertical-align: middle;
-}
+  }
 
-/* Cột "Amount" cần căn phải */
-.orders-table .amount-column {
-    text-align: right;
-    width: 120px; /* Định chiều rộng cố định cho cột tiền */
-}
+  .medicines-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
 
-/* Cột Order Number nên có kích thước nhỏ hơn */
-.orders-table thead th:nth-child(1),
-.orders-table tbody td:nth-child(1) {
-    width: 100px; 
-}
+  .medicines-table {
+    font-size: 12px;
+  }
 
-/* Cột Purchase Date */
-.orders-table thead th:nth-child(2),
-.orders-table tbody td:nth-child(2) {
-    width: 120px;
-}
+  .medicines-table th,
+  .medicines-table td {
+    padding: 10px 8px;
+  }
 
-/* Định dạng ô "Event" */
-.event-cell {
-    display: flex;
-    align-items: center;
-}
+  .form-row {
+    grid-template-columns: 1fr;
+  }
 
-.event-icon {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-right: 10px;
-    font-size: 14px;
-    /* Thiết lập màu nền giả lập cho icon */
-    background-color: #3a3a3a; 
-    color: #ffffff; 
-}
+  .action-buttons {
+    flex-direction: column;
+  }
 
-/* Thiết lập màu icon cụ thể (chỉ định theo dữ liệu mẫu) */
-.event-icon.bear {
-    background-color: #5d4037; /* Màu nâu */
-}
+  .btn-edit-small,
+  .btn-delete-small {
+    width: 100%;
+  }
 
-.event-icon.six-fingers {
-    background-color: #0d47a1; /* Màu xanh đậm */
-}
-
-.event-icon.look-same {
-    background-color: #43a047; /* Màu xanh lá */
-}
-
-.event-icon.viking {
-    background-color: #616161; /* Màu xám đen */
+  .detail-actions {
+    flex-direction: column;
+  }
 }

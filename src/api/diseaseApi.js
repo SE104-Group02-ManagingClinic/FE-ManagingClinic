@@ -56,9 +56,14 @@ export const getAllDiseases = async () => {
   });
 
   if (!response.ok) {
-    // 500 hoặc lỗi khác
-    const data = await response.json();
-    throw new Error(data.error || "Lỗi hệ thống");
+    // Check if response is JSON
+    const contentType = response.headers.get("content-type");
+    if (contentType && contentType.includes("application/json")) {
+      const data = await response.json();
+      throw new Error(data.error || "Lỗi hệ thống");
+    } else {
+      throw new Error(`API /api/disease/getDSBenh trả về lỗi ${response.status}. Có thể endpoint không tồn tại hoặc server chưa chạy.`);
+    }
   }
 
   // ✅ 200 OK

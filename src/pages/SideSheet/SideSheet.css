@@ -41,17 +41,6 @@
   box-sizing: border-box;
 }
 
-/* Nút drag */
-.sidesheet .dragbutton {
-  background-color: #777676;
-  width: 5px;
-  height: 50px;
-  border-radius: 5px;
-  margin-bottom: 10px;
-  cursor: grab;
-  flex-shrink: 0;
-}
-
 /* Khi mở sheet */
 .sidesheet.open {
   pointer-events: auto;
@@ -84,4 +73,22 @@
     width: 80%;
     min-width: 200px;
   }
+}
+
+/* Custom scrollbar */
+.sidesheet .content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.sidesheet .content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidesheet .content::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
+
+.sidesheet .content::-webkit-scrollbar-thumb:hover {
+  background: #999;
 }

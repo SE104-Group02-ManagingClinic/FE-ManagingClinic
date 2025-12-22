@@ -19,16 +19,52 @@
         height: 100vh;
         border-radius: 10px;
         background-color: #1a1a1a;
+        overflow: hidden;
     }
+        .home-title {
+            color: #94ffa2;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 24px;
+            text-align: center;
+        }
         .UpcommingAppointments {
             display: flex;
             border-radius: 12px;
             flex-direction: row;
+            flex-wrap: wrap;
             align-items: flex-start;
             width: 90%;
             padding: 10px;
-            margin-top: 30px;
+            margin-top: 10px;
             background-color: rgba(148, 255, 162, 0.329);
+            overflow-y: auto;
+            max-height: calc(100vh - 300px);
+            gap: 12px;
+        }
+        .UpcommingAppointments::-webkit-scrollbar {
+            width: 8px;
+        }
+        .UpcommingAppointments::-webkit-scrollbar-thumb {
+            background-color: rgba(148, 255, 162, 0.6);
+            border-radius: 4px;
+        }
+        .UpcommingAppointments::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .loading-text,
+        .error-text,
+        .empty-text {
+            width: 100%;
+            text-align: center;
+            padding: 20px;
+            color: #fff;
+        }
+        .error-text {
+            color: #ff6b6b;
+        }
+        .empty-text {
+            color: #94ffa2;
         }
         .Buttons
         {
