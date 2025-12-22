@@ -1,0 +1,340 @@
+/* ExamFormDetail.css */
+
+.exam-form-detail {
+  padding: 20px;
+  background: #fff;
+  border-radius: 8px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.exam-form-detail.loading,
+.exam-form-detail.error {
+  text-align: center;
+  padding: 40px;
+  font-size: 16px;
+  color: #666;
+}
+
+.exam-form-detail.error {
+  color: #ff6b6b;
+}
+
+.detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.detail-header h2 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 24px;
+}
+
+.header-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.header-actions button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s;
+}
+
+.btn-edit {
+  background: #3498db;
+  color: white;
+}
+
+.btn-edit:hover {
+  background: #2980b9;
+}
+
+.btn-delete {
+  background: #e74c3c;
+  color: white;
+}
+
+.btn-delete:hover {
+  background: #c0392b;
+}
+
+.btn-save {
+  background: #27ae60;
+  color: white;
+}
+
+.btn-save:hover {
+  background: #229954;
+}
+
+.btn-save:disabled {
+  background: #95a5a6;
+  cursor: not-allowed;
+}
+
+.btn-cancel {
+  background: #95a5a6;
+  color: white;
+}
+
+.btn-cancel:hover {
+  background: #7f8c8d;
+}
+
+.alert {
+  padding: 12px 16px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.alert-error {
+  background: #fee;
+  border: 1px solid #fcc;
+  color: #c33;
+}
+
+.alert-success {
+  background: #efe;
+  border: 1px solid #cfc;
+  color: #3c3;
+}
+
+.detail-content {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.detail-section {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 6px;
+  border: 1px solid #e0e0e0;
+}
+
+.detail-section h3 {
+  margin: 0 0 15px 0;
+  color: #34495e;
+  font-size: 18px;
+  border-bottom: 2px solid #3498db;
+  padding-bottom: 8px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.section-header h3 {
+  margin: 0;
+  border: none;
+  padding: 0;
+}
+
+.btn-add-small {
+  padding: 6px 12px;
+  background: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: background 0.3s;
+}
+
+.btn-add-small:hover {
+  background: #2980b9;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.info-item label {
+  font-weight: 600;
+  color: #555;
+  font-size: 14px;
+}
+
+.info-item p {
+  margin: 0;
+  padding: 8px 12px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  color: #333;
+  font-size: 14px;
+}
+
+.info-item input,
+.info-item textarea,
+.info-item select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: inherit;
+  transition: border-color 0.3s;
+}
+
+.info-item input:focus,
+.info-item textarea:focus,
+.info-item select:focus {
+  outline: none;
+  border-color: #3498db;
+}
+
+.disease-select {
+  min-height: 120px;
+}
+
+.disease-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  min-height: 40px;
+}
+
+.disease-tag {
+  padding: 6px 12px;
+  background: #3498db;
+  color: white;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.medicine-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.medicine-table thead {
+  background: #34495e;
+  color: white;
+}
+
+.medicine-table th {
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.medicine-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #e0e0e0;
+  font-size: 14px;
+  color: #333;
+}
+
+.medicine-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.medicine-table tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.medicine-table input,
+.medicine-table select {
+  width: 100%;
+  padding: 6px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.medicine-table input:focus,
+.medicine-table select:focus {
+  outline: none;
+  border-color: #3498db;
+}
+
+.btn-remove-small {
+  padding: 4px 10px;
+  background: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background 0.3s;
+}
+
+.btn-remove-small:hover {
+  background: #c0392b;
+}
+
+.detail-total {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 20px;
+  padding: 20px;
+  background: #ecf0f1;
+  border-radius: 6px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.total-amount {
+  color: #27ae60;
+  font-size: 22px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .medicine-table {
+    font-size: 12px;
+  }
+
+  .medicine-table th,
+  .medicine-table td {
+    padding: 8px 6px;
+  }
+
+  .detail-total {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+  }
+}

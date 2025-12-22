@@ -7,50 +7,94 @@
   min-width: 250px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 12px;
   color: black;
   box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-  .detail-btn {
+.appointment-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
 
-    background: #9aff9a;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
-    align-self: flex-start;
-    position: relative;
-    overflow: hidden;
-    transition: background 0.1s ease;
-    transition: transform 0.1s ease, box-shadow 0.1s ease;
-  }
+.detail-btn {
+  background: #9aff9a;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  align-self: flex-start;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
 
-      /*.detail-btn:hover {
-        background: #70ff70;
-      }*/
-  .info {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    height:30%;
-    width:100%
-  }
-    .key {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      font-weight: bold;
-    }
-    .value {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-    }
 .detail-btn:hover {
   box-shadow: 0 0 0 3px #000000 inset; /* Viền sáng bên trong */
   transform: scale(1.2); /* hơi phóng to 1 chút */
+}
+
+.info {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+  gap: 12px;
+}
+
+.key {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-weight: bold;
+}
+
+.key p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.value {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: right;
+}
+
+.value p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.exam-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(0,0,0,0.1);
+}
+
+.exam-symptoms,
+.exam-total {
+  margin: 0;
+  font-size: 13px;
+}
+
+.exam-symptoms {
+  color: #333;
+}
+
+.exam-total {
+  color: #27ae60;
+  font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .appointment-card {
+    min-width: 200px;
+  }
 }

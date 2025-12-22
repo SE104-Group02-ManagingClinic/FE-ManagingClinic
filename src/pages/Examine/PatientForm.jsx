@@ -19,12 +19,18 @@ const PatientForm = ({ onSubmit }) => {
       const handleSubmit = async (e) => {
             e.preventDefault();
 
+            // Validate required fields
+            if (!formData.HoTen.trim() || !formData.CCCD.trim() || !formData.SDT.trim() || !formData.NamSinh) {
+                  alert("Vui lòng điền đầy đủ các trường bắt buộc!");
+                  return;
+            }
+
             try {
                   const result = await createPatient(formData);
                   console.log("✅ Tạo bệnh nhân thành công:", result);
                   alert("Tạo bệnh nhân thành công!");
 
-                  // (tuỳ chọn) reset form
+                  // Reset form
                   setFormData({
                         HoTen: "",
                         GioiTinh: "",
@@ -33,6 +39,11 @@ const PatientForm = ({ onSubmit }) => {
                         DiaChi: "",
                         SDT: "",
                   });
+
+                  // Notify parent component
+                  if (onSubmit) {
+                        onSubmit(result);
+                  }
             } catch (error) {
                   console.error("❌ Lỗi khi tạo bệnh nhân:", error);
                   alert("Tạo bệnh nhân thất bại!");
@@ -66,12 +77,13 @@ const PatientForm = ({ onSubmit }) => {
 
                         <div className="form-row">
                               <div className="form-group">
-                                    <label>Năm sinh:</label>
+                                    <label>Ngày sinh:</label>
                                     <input
-                                          type="text"
+                                          type="date"
                                           name="NamSinh"
                                           value={formData.NamSinh}
                                           onChange={handleChange}
+                                          required
                                     />
                               </div>
                               <div className="form-group">

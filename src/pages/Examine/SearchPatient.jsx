@@ -21,9 +21,18 @@ const SearchPatient = () => {
     setLoading(true);
     try {
       const result = await searchPatientByCCCD(cccd);
-      if (result && result.length > 0) {
-        setSearchResult(result[0]); // Lấy bệnh nhân đầu tiên
-        console.log("✅ Tìm kiếm thành công:", result[0]);
+      
+      // Handle both array and object responses
+      let patient = null;
+      if (Array.isArray(result) && result.length > 0) {
+        patient = result[0]; // Array response
+      } else if (result && typeof result === 'object' && result.MaBN) {
+        patient = result; // Single object response
+      }
+
+      if (patient) {
+        setSearchResult(patient);
+        console.log("✅ Tìm kiếm thành công:", patient);
       } else {
         setError("Không tìm thấy bệnh nhân với CCCD này");
       }

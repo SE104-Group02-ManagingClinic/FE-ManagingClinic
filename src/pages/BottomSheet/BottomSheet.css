@@ -46,6 +46,16 @@
   width: 50px;
   border-radius: 5px;
   margin-top: 10px;
+  flex-shrink: 0;
+}
+
+/* Body - scrollable content */
+.bottomsheet .body {
+  width: 100%;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0 20px 20px 20px;
 }
 
 /* Khi mở sheet */
@@ -65,4 +75,22 @@
 /* Khi tắt sheet */
 .bottomsheet:not(.open) .content {
   transform: translateY(100%);
+}
+
+/* Custom scrollbar */
+.bottomsheet .body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.bottomsheet .body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.bottomsheet .body::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
+
+.bottomsheet .body::-webkit-scrollbar-thumb:hover {
+  background: #999;
 }

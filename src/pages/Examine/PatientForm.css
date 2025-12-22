@@ -1,11 +1,11 @@
 .patient-form-container {
-  width: 90%;
-  max-width: 700px;
-  min-width: 300px;
+  width: 100%;
+  max-width: 100%;
   margin: 0 auto;
   padding: 20px;
   background: transparent; /* để hòa vào bottomsheet */
   color: #222; /* hoặc #222 nếu background sheet sáng */
+  box-sizing: border-box;
 }
 
 .form-title {
@@ -23,12 +23,13 @@
 
 .form-row {
   display: flex;
-  justify-content: space-between;
-  gap: 20px;
+  gap: 15px;
+  flex-wrap: wrap;
 }
 
 .form-group {
   flex: 1;
+  min-width: 200px;
   display: flex;
   flex-direction: column;
   gap: 5px;
@@ -39,11 +40,32 @@ label {
 }
 
 input {
-  padding: 6px 10px;
+  width: 100%;
+  padding: 8px 10px;
   border: 1px solid #777;
   border-radius: 5px;
   background-color: #fff;
   color: #000;
+  box-sizing: border-box;
+  font-size: 0.95rem;
+  font-family: inherit;
+}
+
+/* Style date input calendar icon */
+input[type="date"] {
+  cursor: pointer;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  border-radius: 4px;
+  margin-right: 2px;
+  opacity: 0.6;
+  filter: invert(0.8);
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
 }
 
 .submit-btn {
