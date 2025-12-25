@@ -1,7 +1,11 @@
 import React, { useState } from "react";
 import "./PatientForm.css";
-import { createPatient } from "../../api/patientApi";
+import { useBottomSheet } from "../../contexts/BottomSheetContext";
+import { useToast } from "../../contexts/ToastContext";
+
 const PatientForm = ({ onSubmit }) => {
+      const { addPendingPatient, triggerRefresh } = useBottomSheet();
+      const { showSuccess, showError, showWarning } = useToast();
       const [formData, setFormData] = useState({
             HoTen: "",
             GioiTinh: "",
@@ -10,6 +14,7 @@ const PatientForm = ({ onSubmit }) => {
             DiaChi: "",
             SDT: "",
       });
+      const [showConfirmPopup, setShowConfirmPopup] = useState(false);
 
       const handleChange = (e) => {
             const { name, value } = e.target;
@@ -20,15 +25,32 @@ const PatientForm = ({ onSubmit }) => {
             e.preventDefault();
 
             // Validate required fields
-            if (!formData.HoTen.trim() || !formData.CCCD.trim() || !formData.SDT.trim() || !formData.NamSinh) {
-                  alert("Vui lòng điền đầy đủ các trường bắt buộc!");
+            if (!formData.HoTen.trim() || !formData.CCCD.trim() || !formData.SDT.trim() || !formData.NamSinh || !formData.GioiTinh) {
+                  showWarning("Vui lòng điền đầy đủ các trường bắt buộc!");
                   return;
             }
 
+            // Validate CCCD (12 số)
+            if (!/^\d{12}$/.test(formData.CCCD)) {
+                  showWarning("CCCD phải gồm đúng 12 số!");
+                  return;
+            }
+
+            // Validate SDT (10 số)
+            if (!/^\d{10}$/.test(formData.SDT)) {
+                  showWarning("Số điện thoại phải gồm đúng 10 số!");
+                  return;
+            }
+
+            // Hiển thị popup xác nhận
+            setShowConfirmPopup(true);
+      };
+
+      const handleConfirmRegister = async () => {
             try {
-                  const result = await createPatient(formData);
-                  console.log("✅ Tạo bệnh nhân thành công:", result);
-                  alert("Tạo bệnh nhân thành công!");
+                  // Lưu bệnh nhân tạm trong frontend (chưa gọi API)
+                  const pendingPatient = addPendingPatient(formData);
+                  showSuccess(`Đã thêm bệnh nhân "${formData.HoTen}" vào danh sách chờ`);
 
                   // Reset form
                   setFormData({
@@ -40,13 +62,18 @@ const PatientForm = ({ onSubmit }) => {
                         SDT: "",
                   });
 
+                  // Đóng popup
+                  setShowConfirmPopup(false);
+
+                  // Trigger refresh để cập nhật danh sách bệnh nhân
+                  triggerRefresh("patients");
+
                   // Notify parent component
                   if (onSubmit) {
-                        onSubmit(result);
+                        onSubmit(pendingPatient);
                   }
             } catch (error) {
-                  console.error("❌ Lỗi khi tạo bệnh nhân:", error);
-                  alert("Tạo bệnh nhân thất bại!");
+                  showError("Thêm bệnh nhân thất bại!");
             }
       };
       
@@ -66,12 +93,16 @@ const PatientForm = ({ onSubmit }) => {
                               </div>
                               <div className="form-group">
                                     <label>Giới tính:</label>
-                                    <input
-                                          type="text"
+                                    <select
                                           name="GioiTinh"
                                           value={formData.GioiTinh}
                                           onChange={handleChange}
-                                    />
+                                          required
+                                    >
+                                          <option value="">-- Chọn giới tính --</option>
+                                          <option value="Nam">Nam</option>
+                                          <option value="Nữ">Nữ</option>
+                                    </select>
                               </div>
                         </div>
 
@@ -122,6 +153,49 @@ const PatientForm = ({ onSubmit }) => {
                               Lưu thông tin
                         </button>
                   </form>
+
+                  {/* Popup xác nhận */}
+                  {showConfirmPopup && (
+                        <div className="confirm-popup-overlay" onClick={() => setShowConfirmPopup(false)}>
+                              <div className="confirm-popup" onClick={(e) => e.stopPropagation()}>
+                                    <h3>Xác nhận thông tin bệnh nhân</h3>
+                                    <div className="confirm-info">
+                                          <div className="info-row">
+                                                <span className="info-label">Họ tên:</span>
+                                                <span className="info-value">{formData.HoTen}</span>
+                                          </div>
+                                          <div className="info-row">
+                                                <span className="info-label">Giới tính:</span>
+                                                <span className="info-value">{formData.GioiTinh}</span>
+                                          </div>
+                                          <div className="info-row">
+                                                <span className="info-label">Ngày sinh:</span>
+                                                <span className="info-value">{formData.NamSinh}</span>
+                                          </div>
+                                          <div className="info-row">
+                                                <span className="info-label">CCCD:</span>
+                                                <span className="info-value">{formData.CCCD}</span>
+                                          </div>
+                                          <div className="info-row">
+                                                <span className="info-label">Địa chỉ:</span>
+                                                <span className="info-value">{formData.DiaChi || "(Không có)"}</span>
+                                          </div>
+                                          <div className="info-row">
+                                                <span className="info-label">Số điện thoại:</span>
+                                                <span className="info-value">{formData.SDT}</span>
+                                          </div>
+                                    </div>
+                                    <div className="popup-buttons">
+                                          <button className="cancel-btn" onClick={() => setShowConfirmPopup(false)}>
+                                                Hủy
+                                          </button>
+                                          <button className="confirm-btn" onClick={handleConfirmRegister}>
+                                                Xác nhận đăng ký
+                                          </button>
+                                    </div>
+                              </div>
+                        </div>
+                  )}
             </div>
       );
 };

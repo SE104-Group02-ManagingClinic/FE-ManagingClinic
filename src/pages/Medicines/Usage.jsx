@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { getAllUsages, createUsage, updateUsage, deleteUsage } from "../../api/usageApi";
 import { useBottomSheet } from "../../contexts/BottomSheetContext";
+import { useToast } from "../../contexts/ToastContext";
+import DeleteConfirmModal from "../../components/DeleteConfirmModal";
 
 const Usage = () => {
   const [usages, setUsages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [deleteModal, setDeleteModal] = useState({ isOpen: false, usage: null });
   const { refreshTriggers, setBottomSheetState, setEditingUsage } = useBottomSheet();
+  const { showSuccess, showError } = useToast();
 
   useEffect(() => {
     fetchUsages();
@@ -20,7 +23,7 @@ const Usage = () => {
       setUsages(data);
       setError("");
     } catch (err) {
-      console.error("Error loading usages:", err);
+      showError(err.message || "Lỗi khi tải danh sách cách dùng");
       setError(err.message || "Lỗi khi tải danh sách cách dùng");
     } finally {
       setLoading(false);
@@ -33,28 +36,33 @@ const Usage = () => {
   };
 
   const handleDelete = async (usage) => {
-    if (!window.confirm(`Bạn có chắc chắn muốn xóa cách dùng "${usage.TenCachDung}"?`)) {
-      return;
-    }
+    setDeleteModal({ isOpen: true, usage });
+  };
 
+  const handleDeleteConfirm = async () => {
+    const usage = deleteModal.usage;
     try {
       setLoading(true);
       setError("");
       await deleteUsage(usage.MaCachDung);
-      setSuccess(`Đã xóa cách dùng "${usage.TenCachDung}" thành công!`);
+      showSuccess(`Đã xóa cách dùng "${usage.TenCachDung}" thành công!`);
+      setDeleteModal({ isOpen: false, usage: null });
       await fetchUsages();
     } catch (err) {
-      console.error("Error deleting usage:", err);
+      showError(err.message || "Lỗi khi xóa cách dùng");
       setError(err.message || "Lỗi khi xóa cách dùng");
     } finally {
       setLoading(false);
     }
   };
 
+  const handleDeleteCancel = () => {
+    setDeleteModal({ isOpen: false, usage: null });
+  };
+
   return (
     <div className="tab-content">
       {error && <div className="alert alert-error">{error}</div>}
-      {success && <div className="alert alert-success">{success}</div>}
 
       {loading && !usages.length ? (
         <div className="loading">Đang tải...</div>
@@ -103,6 +111,15 @@ const Usage = () => {
           </table>
         </div>
       )}
+
+      <DeleteConfirmModal
+        isOpen={deleteModal.isOpen}
+        title={`Xóa cách dùng "${deleteModal.usage?.TenCachDung || ""}"`}
+        message="Hành động này không thể hoàn tác. Bạn có chắc chắn muốn xóa?"
+        onConfirm={handleDeleteConfirm}
+        onCancel={handleDeleteCancel}
+        isLoading={loading}
+      />
     </div>
   );
 };

@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { getAllUnits, createUnit, updateUnit, deleteUnit } from "../../api/unitApi";
 import { useBottomSheet } from "../../contexts/BottomSheetContext";
+import { useToast } from "../../contexts/ToastContext";
+import DeleteConfirmModal from "../../components/DeleteConfirmModal";
 
 const Unit = () => {
   const [units, setUnits] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [deleteModal, setDeleteModal] = useState({ isOpen: false, unit: null });
   const { refreshTriggers, setBottomSheetState, setEditingUnit } = useBottomSheet();
+  const { showSuccess, showError } = useToast();
 
   useEffect(() => {
     fetchUnits();
@@ -20,7 +23,7 @@ const Unit = () => {
       setUnits(data);
       setError("");
     } catch (err) {
-      console.error("Error loading units:", err);
+      showError(err.message || "Lỗi khi tải danh sách đơn vị tính");
       setError(err.message || "Lỗi khi tải danh sách đơn vị tính");
     } finally {
       setLoading(false);
@@ -33,28 +36,33 @@ const Unit = () => {
   };
 
   const handleDelete = async (unit) => {
-    if (!window.confirm(`Bạn có chắc chắn muốn xóa đơn vị tính "${unit.TenDVT}"?`)) {
-      return;
-    }
+    setDeleteModal({ isOpen: true, unit });
+  };
 
+  const handleDeleteConfirm = async () => {
+    const unit = deleteModal.unit;
     try {
       setLoading(true);
       setError("");
       await deleteUnit(unit.MaDVT);
-      setSuccess(`Đã xóa đơn vị tính "${unit.TenDVT}" thành công!`);
+      showSuccess(`Đã xóa đơn vị tính "${unit.TenDVT}" thành công!`);
+      setDeleteModal({ isOpen: false, unit: null });
       await fetchUnits();
     } catch (err) {
-      console.error("Error deleting unit:", err);
+      showError(err.message || "Lỗi khi xóa đơn vị tính");
       setError(err.message || "Lỗi khi xóa đơn vị tính");
     } finally {
       setLoading(false);
     }
   };
 
+  const handleDeleteCancel = () => {
+    setDeleteModal({ isOpen: false, unit: null });
+  };
+
   return (
     <div className="tab-content">
       {error && <div className="alert alert-error">{error}</div>}
-      {success && <div className="alert alert-success">{success}</div>}
 
       {loading && !units.length ? (
         <div className="loading">Đang tải...</div>
@@ -103,6 +111,15 @@ const Unit = () => {
           </table>
         </div>
       )}
+
+      <DeleteConfirmModal
+        isOpen={deleteModal.isOpen}
+        title={`Xóa đơn vị tính "${deleteModal.unit?.TenDVT || ""}"`}
+        message="Hành động này không thể hoàn tác. Bạn có chắc chắn muốn xóa?"
+        onConfirm={handleDeleteConfirm}
+        onCancel={handleDeleteCancel}
+        isLoading={loading}
+      />
     </div>
   );
 };

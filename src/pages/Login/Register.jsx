@@ -2,9 +2,11 @@ import React, { useState } from "react";
 import "./Register.css";
 import { createAccount } from "../../api/userApi";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "../../contexts/ToastContext";
 
 const Register = () => {
   const navigate = useNavigate();
+  const { showSuccess, showError } = useToast();
   
   const [formData, setFormData] = useState({
     TenDangNhap: "",
@@ -15,7 +17,6 @@ const Register = () => {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
 
   // Nhóm người dùng có sẵn
   const groups = [
@@ -61,7 +62,6 @@ const Register = () => {
     e.preventDefault();
     setLoading(true);
     setError("");
-    setSuccess("");
 
     try {
       validateForm();
@@ -72,8 +72,7 @@ const Register = () => {
         MaNhom: formData.MaNhom,
       });
 
-      console.log("✅ Tạo tài khoản thành công:", result);
-      setSuccess("Tạo tài khoản thành công! Đang chuyển hướng...");
+      showSuccess("Tạo tài khoản thành công! Đang chuyển hướng...");
 
       // Reset form
       setFormData({
@@ -88,7 +87,7 @@ const Register = () => {
         navigate("/");
       }, 2000);
     } catch (error) {
-      console.error("❌ Lỗi khi tạo tài khoản:", error);
+      showError(error.message || "Tạo tài khoản thất bại!");
       setError(error.message || "Tạo tài khoản thất bại!");
     } finally {
       setLoading(false);
@@ -104,7 +103,6 @@ const Register = () => {
         </div>
 
         {error && <div className="alert alert-error">{error}</div>}
-        {success && <div className="alert alert-success">{success}</div>}
 
         <form className="register-form" onSubmit={handleSubmit}>
           <div className="form-group">

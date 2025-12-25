@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import "./DiseaseForm.css";
 import { createDisease } from "../../api/diseaseApi";
+import { useToast } from "../../contexts/ToastContext";
 
 const DiseaseForm = ({ onSubmit }) => {
+    const { showSuccess, showError } = useToast();
     const [formData, setFormData] = useState({
         TenBenh: "",
         TrieuChung: "",
@@ -21,8 +23,7 @@ const DiseaseForm = ({ onSubmit }) => {
 
         try {
             const result = await createDisease(formData);
-            console.log("✅ Tạo bệnh thành công:", result);
-            alert("Tạo bệnh thành công!");
+            showSuccess("Tạo bệnh thành công!");
 
             // Reset form
             setFormData({
@@ -36,8 +37,7 @@ const DiseaseForm = ({ onSubmit }) => {
             // Gọi callback nếu có
             if (onSubmit) onSubmit(result);
         } catch (error) {
-            console.error("❌ Lỗi khi tạo bệnh:", error);
-            alert(`Tạo bệnh thất bại: ${error.message}`);
+            showError(`Tạo bệnh thất bại: ${error.message}`);
         }
     };
 

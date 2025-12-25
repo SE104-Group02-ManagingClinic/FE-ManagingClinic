@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { createMedicine, updateMedicine } from "../../api/medicineApi";
 import { getAllUnits } from "../../api/unitApi";
 import { getAllUsages } from "../../api/usageApi";
+import { useBottomSheet } from "../../contexts/BottomSheetContext";
+import { useToast } from "../../contexts/ToastContext";
 
 const MedicineForm = ({ medicine = null, onSubmit, onCancel }) => {
   const [loading, setLoading] = useState(false);
@@ -16,6 +18,9 @@ const MedicineForm = ({ medicine = null, onSubmit, onCancel }) => {
     TacDungPhu: "",
   });
 
+  const { refreshTriggers } = useBottomSheet();
+  const { showError } = useToast();
+
   useEffect(() => {
     // Load units and usages
     const fetchData = async () => {
@@ -27,11 +32,11 @@ const MedicineForm = ({ medicine = null, onSubmit, onCancel }) => {
         setUnits(unitsData);
         setUsages(usagesData);
       } catch (err) {
-        console.error("Error loading units/usages:", err);
+        showError("Lỗi khi tải dữ liệu đơn vị tính/cách dùng");
       }
     };
     fetchData();
-  }, []);
+  }, [refreshTriggers.medicines]);
 
   useEffect(() => {
     if (medicine) {
@@ -65,7 +70,7 @@ const MedicineForm = ({ medicine = null, onSubmit, onCancel }) => {
 
       onSubmit?.();
     } catch (err) {
-      console.error("Error saving medicine:", err);
+      showError(err.message || "Lỗi khi lưu thuốc");
       setError(err.message || "Lỗi khi lưu thuốc");
     } finally {
       setLoading(false);

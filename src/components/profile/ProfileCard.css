@@ -5,7 +5,9 @@
   padding: 16px;
   gap: 12px;
   width:100%;
-  color: white;
+  color: #333333;
+  background-color: #ffffff;
+  border-right: 1px solid #e0e0e0;
 }
 
 .profile-avatar {
@@ -25,10 +27,11 @@
   margin: 0;
   font-size: 1rem;
   font-weight: bold;
+  color: #2c3e50;
 }
 
 .profile-desc {
   margin: 0;
   font-size: 0.85rem;
-  color: #aaa;
+  color: #7f8c8d;
 }

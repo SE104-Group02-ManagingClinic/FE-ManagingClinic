@@ -26,6 +26,39 @@ export const BottomSheetProvider = ({ children }) => {
   const [editingUsage, setEditingUsage] = useState(null);
   const [editingDisease, setEditingDisease] = useState(null);
 
+  // Pending patients - bệnh nhân chưa lưu vào database
+  const [pendingPatients, setPendingPatients] = useState([]);
+
+  // Thêm bệnh nhân tạm (chưa lưu database)
+  const addPendingPatient = (patient) => {
+    const tempId = `TEMP_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const pendingPatient = {
+      ...patient,
+      MaBN: tempId,
+      isPending: true,
+      createdAt: new Date().toISOString()
+    };
+    setPendingPatients(prev => [...prev, pendingPatient]);
+    return pendingPatient;
+  };
+
+  // Xóa bệnh nhân pending (sau khi đã lưu vào database)
+  const removePendingPatient = (tempId) => {
+    setPendingPatients(prev => prev.filter(p => p.MaBN !== tempId));
+  };
+
+  // Lấy bệnh nhân pending theo CCCD
+  const getPendingPatientByCCCD = (cccd) => {
+    return pendingPatients.find(p => p.CCCD === cccd);
+  };
+
+  // Cập nhật bệnh nhân pending với MaBN thật từ database
+  const updatePendingPatientWithRealId = (tempId, realMaBN) => {
+    setPendingPatients(prev => prev.map(p => 
+      p.MaBN === tempId ? { ...p, MaBN: realMaBN, isPending: false } : p
+    ));
+  };
+
   const triggerRefresh = (type) => {
     setRefreshTriggers(prev => ({
       ...prev,
@@ -46,7 +79,13 @@ export const BottomSheetProvider = ({ children }) => {
       editingUsage,
       setEditingUsage,
       editingDisease,
-      setEditingDisease
+      setEditingDisease,
+      // Pending patients
+      pendingPatients,
+      addPendingPatient,
+      removePendingPatient,
+      getPendingPatientByCCCD,
+      updatePendingPatientWithRealId
     }}>
       {children}
     </BottomSheetContext.Provider>

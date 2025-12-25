@@ -4,6 +4,7 @@ import PatientTicket from "./PatientTicket";
 import SideSheet from "../SideSheet/SideSheet";
 import PatientDetail from "./PatientDetail";
 import { useBottomSheet } from "../../contexts/BottomSheetContext";
+import { useToast } from "../../contexts/ToastContext";
 
 const PatientsList = () => {
   const [patients, setPatients] = useState([]);
@@ -12,7 +13,8 @@ const PatientsList = () => {
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [sideSheetOpen, setSideSheetOpen] = useState(false);
   const [isPatientEditing, setIsPatientEditing] = useState(false);
-  const { refreshTriggers } = useBottomSheet();
+  const { refreshTriggers, pendingPatients } = useBottomSheet();
+  const { showError } = useToast();
 
   useEffect(() => {
     fetchPatients();
@@ -25,13 +27,16 @@ const PatientsList = () => {
       setPatients(data);
       setError("");
     } catch (err) {
-      console.error("Lỗi khi load danh sách bệnh nhân:", err);
+      showError(err.message || "Lỗi khi load danh sách bệnh nhân");
       setError(err.message || "Lỗi khi load danh sách bệnh nhân");
       setPatients([]);
     } finally {
       setLoading(false);
     }
   };
+
+  // Gộp bệnh nhân pending với bệnh nhân từ database
+  const allPatients = [...pendingPatients, ...patients];
 
   const handleSelectPatient = (patient) => {
     setSelectedPatient(patient);
@@ -72,16 +77,17 @@ const PatientsList = () => {
       <div className="scroll-list">
         {loading && <p style={{ color: "#fff", textAlign: "center" }}>Đang tải...</p>}
         {error && <p style={{ color: "#ff6b6b", textAlign: "center" }}>{error}</p>}
-        {!loading && patients.length === 0 && !error && (
+        {!loading && allPatients.length === 0 && !error && (
           <p style={{ color: "#fff", textAlign: "center" }}>Không có bệnh nhân</p>
         )}
-        {patients.map((patient) => (
+        {allPatients.map((patient) => (
           <PatientTicket
             key={patient.MaBN}
             patient={patient}
             name={patient.HoTen}
             gender={patient.GioiTinh}
             age={patient.NamSinh}
+            isPending={patient.isPending}
             onClick={() => handleSelectPatient(patient)}
           />
         ))}

@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 import "./SearchPatient.css";
 import { searchPatientByCCCD } from "../../api/patientApi";
+import { useToast } from "../../contexts/ToastContext";
 
 const SearchPatient = () => {
   const [cccd, setCCCD] = useState("");
   const [searchResult, setSearchResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const { showSuccess, showError } = useToast();
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -32,12 +34,12 @@ const SearchPatient = () => {
 
       if (patient) {
         setSearchResult(patient);
-        console.log("✅ Tìm kiếm thành công:", patient);
+        showSuccess(`Tìm thấy bệnh nhân: ${patient.HoTen}`);
       } else {
         setError("Không tìm thấy bệnh nhân với CCCD này");
       }
     } catch (err) {
-      console.error("❌ Lỗi tìm kiếm:", err);
+      showError(err.message || "Lỗi khi tìm kiếm bệnh nhân");
       setError(err.message || "Lỗi khi tìm kiếm bệnh nhân");
     } finally {
       setLoading(false);

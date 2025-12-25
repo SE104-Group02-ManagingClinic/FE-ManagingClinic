@@ -6,6 +6,7 @@ import Medicines from './pages/Medicines/Medicines';
 import ProfileCard from './components/profile/ProfileCard';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { BottomSheetProvider, useBottomSheet } from './contexts/BottomSheetContext';
+import { ToastProvider } from './contexts/ToastContext';
 import BottomSheetContainer from './components/BottomSheetContainer';
 import Login from './pages/Login/Login';
 import Register from './pages/Login/Register';
@@ -50,9 +51,11 @@ function AppContent() {
 
 function App() {
     return (
-        <BottomSheetProvider>
-            <AppContent />
-        </BottomSheetProvider>
+        <ToastProvider>
+            <BottomSheetProvider>
+                <AppContent />
+            </BottomSheetProvider>
+        </ToastProvider>
     );
 }
 

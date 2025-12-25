@@ -2,14 +2,17 @@ import React, { useState, useEffect } from "react";
 import { getAllMedicines, deleteMedicine } from "../../api/medicineApi";
 import SideSheet from "../SideSheet/SideSheet";
 import { useBottomSheet } from "../../contexts/BottomSheetContext";
+import { useToast } from "../../contexts/ToastContext";
+import DeleteConfirmModal from "../../components/DeleteConfirmModal";
 
 const MedicinesList = () => {
   const [medicines, setMedicines] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [deleteModal, setDeleteModal] = useState({ isOpen: false, medicine: null });
   
   const { setBottomSheetState, refreshTriggers } = useBottomSheet();
+  const { showSuccess, showError } = useToast();
   
   // SideSheet state for viewing details
   const [showSideSheet, setShowSideSheet] = useState(false);
@@ -27,7 +30,7 @@ const MedicinesList = () => {
       setMedicines(data);
       setError("");
     } catch (err) {
-      console.error("Error loading medicines:", err);
+      showError(err.message || "Lỗi khi tải danh sách thuốc");
       setError(err.message || "Lỗi khi tải danh sách thuốc");
     } finally {
       setLoading(false);
@@ -49,22 +52,28 @@ const MedicinesList = () => {
   };
 
   const handleDelete = async (medicine) => {
-    if (!window.confirm(`Bạn có chắc chắn muốn xóa thuốc "${medicine.TenThuoc}"?`)) {
-      return;
-    }
+    setDeleteModal({ isOpen: true, medicine });
+  };
 
+  const handleDeleteConfirm = async () => {
+    const medicine = deleteModal.medicine;
     try {
       setLoading(true);
       setError("");
       await deleteMedicine(medicine.MaThuoc);
-      setSuccess(`Đã xóa thuốc "${medicine.TenThuoc}" thành công!`);
+      showSuccess(`Đã xóa thuốc "${medicine.TenThuoc}" thành công!`);
+      setDeleteModal({ isOpen: false, medicine: null });
       await fetchMedicines();
     } catch (err) {
-      console.error("Error deleting medicine:", err);
+      showError(err.message || "Lỗi khi xóa thuốc");
       setError(err.message || "Lỗi khi xóa thuốc");
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteModal({ isOpen: false, medicine: null });
   };
 
   const formatCurrency = (amount) => {
@@ -77,7 +86,6 @@ const MedicinesList = () => {
   return (
     <div className="tab-content">
       {error && <div className="alert alert-error">{error}</div>}
-      {success && <div className="alert alert-success">{success}</div>}
 
       {loading && !medicines.length ? (
         <div className="loading">Đang tải...</div>
@@ -215,6 +223,15 @@ const MedicinesList = () => {
           </div>
         )}
       </SideSheet>
+
+      <DeleteConfirmModal
+        isOpen={deleteModal.isOpen}
+        title={`Xóa thuốc "${deleteModal.medicine?.TenThuoc || ""}"`}
+        message="Hành động này không thể hoàn tác. Bạn có chắc chắn muốn xóa?"
+        onConfirm={handleDeleteConfirm}
+        onCancel={handleDeleteCancel}
+        isLoading={loading}
+      />
     </div>
   );
 };
