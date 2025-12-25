@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { createDisease, updateDisease } from "../../api/diseaseApi";
+import { useToast } from "../../contexts/ToastContext";
 
 const DiseaseFormExamine = ({ disease = null, onSubmit, onCancel }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const { showError } = useToast();
   const [formData, setFormData] = useState({
     TenBenh: "",
     TrieuChung: "",
@@ -44,7 +46,7 @@ const DiseaseFormExamine = ({ disease = null, onSubmit, onCancel }) => {
 
       onSubmit?.();
     } catch (err) {
-      console.error("Error saving disease:", err);
+      showError(err.message || "Lỗi khi lưu bệnh");
       setError(err.message || "Lỗi khi lưu bệnh");
     } finally {
       setLoading(false);

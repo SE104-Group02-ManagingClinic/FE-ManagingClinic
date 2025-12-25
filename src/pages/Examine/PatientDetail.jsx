@@ -2,12 +2,15 @@ import React, { useState, useRef, useEffect } from 'react';
 import { flushSync } from 'react-dom';
 import './PatientDetail.css';
 import { updatePatient, deletePatient } from '../../api/patientApi';
+import { useToast } from '../../contexts/ToastContext';
+import DeleteConfirmModal from '../../components/DeleteConfirmModal';
 
 const PatientDetail = ({ patient, onPatientUpdated, onPatientDeleted, onEditStateChange }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [deleteModal, setDeleteModal] = useState(false);
+  const { showSuccess, showError } = useToast();
   const abortControllerRef = useRef(null);
   const isMountedRef = useRef(true);
   const [formData, setFormData] = useState({
@@ -34,7 +37,6 @@ const PatientDetail = ({ patient, onPatientUpdated, onPatientDeleted, onEditStat
   useEffect(() => {
     setIsEditing(false);
     setError('');
-    setSuccess('');
     setIsLoading(false);
     if (patient) {
       setFormData({
@@ -66,7 +68,6 @@ const PatientDetail = ({ patient, onPatientUpdated, onPatientDeleted, onEditStat
       [name]: value
     }));
     setError('');
-    setSuccess('');
   };
 
   const handleEdit = () => {
@@ -84,7 +85,6 @@ const PatientDetail = ({ patient, onPatientUpdated, onPatientDeleted, onEditStat
   const handleCancel = () => {
     setIsEditing(false);
     setError('');
-    setSuccess('');
   };
 
   const handleSave = async () => {
@@ -101,7 +101,6 @@ const PatientDetail = ({ patient, onPatientUpdated, onPatientDeleted, onEditStat
 
     setIsLoading(true);
     setError('');
-    setSuccess('');
 
     try {
       await updatePatient(patient.MaBN, formData, abortControllerRef.current.signal);
@@ -114,9 +113,10 @@ const PatientDetail = ({ patient, onPatientUpdated, onPatientDeleted, onEditStat
 
       // Close/refresh via parent immediately (don't gate on isMountedRef; it can block closing)
       try {
+        showSuccess('Cập nhật bệnh nhân thành công!');
         onPatientUpdated?.();
       } catch (e) {
-        console.error('onPatientUpdated failed:', e);
+        showError('Có lỗi khi cập nhật');
       }
     } catch (err) {
       // Only update state if component is still mounted and it's not an abort error
@@ -133,40 +133,49 @@ const PatientDetail = ({ patient, onPatientUpdated, onPatientDeleted, onEditStat
   };
 
   const handleDelete = async () => {
-    if (window.confirm(`Bạn có chắc muốn xóa bệnh nhân "${patient.HoTen}" không? Hành động này không thể hoàn tác.`)) {
-      // Cancel any previous requests
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-      abortControllerRef.current = new AbortController();
+    setDeleteModal(true);
+  };
 
-      setIsLoading(true);
-      setError('');
+  const handleDeleteConfirm = async () => {
+    // Cancel any previous requests
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    abortControllerRef.current = new AbortController();
+
+    setIsLoading(true);
+    setError('');
+
+    try {
+      await deletePatient(patient.MaBN, abortControllerRef.current.signal);
+
+      flushSync(() => {
+        setIsLoading(false);
+      });
 
       try {
-        await deletePatient(patient.MaBN, abortControllerRef.current.signal);
-
-        flushSync(() => {
-          setIsLoading(false);
-        });
-
-        try {
-          onPatientDeleted?.();
-        } catch (e) {
-          console.error('onPatientDeleted failed:', e);
-        }
-      } catch (err) {
-        // Only update state if component is still mounted and it's not an abort error
-        if (!isMountedRef.current || err.name === 'AbortError') return;
-        
-        setError(err.message || 'Xóa thất bại');
+        showSuccess('Xóa bệnh nhân thành công!');
+        onPatientDeleted?.();
+      } catch (e) {
+        showError('Có lỗi khi xóa bệnh nhân');
+      }
+    } catch (err) {
+      // Only update state if component is still mounted and it's not an abort error
+      if (!isMountedRef.current || err.name === 'AbortError') return;
+      
+      setError(err.message || 'Xóa thất bại');
+      setIsLoading(false);
+    } finally {
+      if (isMountedRef.current) {
         setIsLoading(false);
-      } finally {
-        if (isMountedRef.current) {
-          setIsLoading(false);
-        }
       }
     }
+    
+    setDeleteModal(false);
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteModal(false);
   };
 
   return (
@@ -174,7 +183,6 @@ const PatientDetail = ({ patient, onPatientUpdated, onPatientDeleted, onEditStat
       <h2>Thông tin bệnh nhân</h2>
       
       {error && <div className="message error-message">{error}</div>}
-      {success && <div className="message success-message">{success}</div>}
 
       {!isEditing ? (
         <>
@@ -330,8 +338,16 @@ const PatientDetail = ({ patient, onPatientUpdated, onPatientDeleted, onEditStat
           </div>
         </div>
       )}
+
+      <DeleteConfirmModal
+        isOpen={deleteModal}
+        title={`Xóa bệnh nhân "${patient?.HoTen || ""}"`}
+        message="Hành động này không thể hoàn tác. Bạn có chắc chắn muốn xóa?"
+        onConfirm={handleDeleteConfirm}
+        onCancel={handleDeleteCancel}
+        isLoading={isLoading}
+      />
     </div>
   );
 };
-
 export default PatientDetail;

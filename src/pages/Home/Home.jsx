@@ -8,6 +8,7 @@ import { useBottomSheet } from "../../contexts/BottomSheetContext";
 import { getUpcomingExamForms } from "../../api/medicalExamFormApi";
 import SideSheet from "../SideSheet/SideSheet";
 import ExamFormDetail from "../Examine/ExamFormDetail";
+import { useToast } from "../../contexts/ToastContext";
 
 const Home = () => {
   const { bottomSheetState, setBottomSheetState, refreshTriggers } = useBottomSheet();
@@ -16,6 +17,7 @@ const Home = () => {
   const [error, setError] = useState("");
   const [selectedExamForm, setSelectedExamForm] = useState(null);
   const [sideSheetOpen, setSideSheetOpen] = useState(false);
+  const { showError } = useToast();
 
   useEffect(() => {
     fetchUpcomingExams();
@@ -28,7 +30,7 @@ const Home = () => {
       setUpcomingExams(data);
       setError("");
     } catch (err) {
-      console.error("Error loading upcoming exams:", err);
+      showError(err.message || "Lỗi khi tải danh sách phiếu khám sắp tới");
       setError(err.message || "Lỗi khi tải danh sách phiếu khám sắp tới");
       setUpcomingExams([]);
     } finally {

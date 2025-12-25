@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { createUsage, updateUsage } from "../../api/usageApi";
+import { useToast } from "../../contexts/ToastContext";
 
 const UsageForm = ({ usage = null, onSubmit, onCancel }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const { showError } = useToast();
   const [formData, setFormData] = useState({
     TenCachDung: "",
   });
@@ -36,7 +38,7 @@ const UsageForm = ({ usage = null, onSubmit, onCancel }) => {
 
       onSubmit?.();
     } catch (err) {
-      console.error("Error saving usage:", err);
+      showError(err.message || "Lỗi khi lưu cách dùng");
       setError(err.message || "Lỗi khi lưu cách dùng");
     } finally {
       setLoading(false);

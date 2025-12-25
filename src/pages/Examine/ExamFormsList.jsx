@@ -4,6 +4,7 @@ import ExamineCard from "../../components/cards/ExamineCard";
 import SideSheet from "../SideSheet/SideSheet";
 import ExamFormDetail from "./ExamFormDetail";
 import { useBottomSheet } from "../../contexts/BottomSheetContext";
+import { useToast } from "../../contexts/ToastContext";
 
 const ExamFormsList = () => {
   const [examForms, setExamForms] = useState([]);
@@ -13,6 +14,7 @@ const ExamFormsList = () => {
   const [sideSheetOpen, setSideSheetOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const { refreshTriggers } = useBottomSheet();
+  const { showError } = useToast();
 
   useEffect(() => {
     fetchExamForms();
@@ -25,7 +27,7 @@ const ExamFormsList = () => {
       setExamForms(data);
       setExamError("");
     } catch (err) {
-      console.error("Lỗi khi load phiếu khám:", err);
+      showError(err.message || "Lỗi khi load danh sách phiếu khám");
       setExamError(err.message || "Lỗi khi load danh sách phiếu khám");
       setExamForms([]);
     } finally {
@@ -59,10 +61,10 @@ const ExamFormsList = () => {
       </div>
 
       <div className="scroll-list">
-        {loadingExams && <p style={{ color: "#fff", textAlign: "center" }}>Đang tải...</p>}
+        {loadingExams && <p style={{ color: "#000000ff", textAlign: "center" }}>Đang tải...</p>}
         {examError && <p style={{ color: "#ff6b6b", textAlign: "center" }}>{examError}</p>}
         {!loadingExams && examForms.length === 0 && !examError && (
-          <p style={{ color: "#fff", textAlign: "center" }}>
+          <p style={{ color: "#000000ff", textAlign: "center" }}>
             Không có phiếu khám nào vào ngày {new Date(selectedDate).toLocaleDateString("vi-VN")}
           </p>
         )}

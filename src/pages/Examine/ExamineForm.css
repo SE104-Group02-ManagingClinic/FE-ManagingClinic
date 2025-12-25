@@ -106,6 +106,34 @@
   margin: 5px 0 0 0;
 }
 
+.search-error-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.btn-create-patient {
+  background: #27ae60;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: background 0.3s;
+  white-space: nowrap;
+}
+
+.btn-create-patient:hover {
+  background: #229954;
+}
+
+.btn-create-patient:active {
+  transform: scale(0.98);
+}
+
 .patient-info-box {
   background: white;
   padding: 15px;
@@ -114,12 +142,39 @@
   margin-top: 15px;
 }
 
+.patient-info-box.pending {
+  background: #fffbeb;
+  border-color: #f59e0b;
+  border-width: 2px;
+}
+
 .patient-info-box h3 {
   margin: 0 0 12px 0;
   color: #2c3e50;
   font-size: 16px;
   border-bottom: 1px solid #e0e0e0;
   padding-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pending-badge {
+  background: #f59e0b;
+  color: white;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.pending-note {
+  color: #b45309;
+  font-size: 12px;
+  margin-top: 10px;
+  padding: 8px;
+  background: #fef3c7;
+  border-radius: 4px;
 }
 
 .patient-info-box p {
@@ -189,6 +244,81 @@
   font-size: 12px;
   font-style: italic;
   margin-top: 4px;
+}
+
+/* Selected Diseases Details */
+.selected-diseases-details {
+  margin-top: 15px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #e0e0e0;
+}
+
+.selected-diseases-details h4 {
+  margin: 0 0 12px 0;
+  color: #2c3e50;
+  font-size: 14px;
+}
+
+.disease-detail-card {
+  background: white;
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  margin-bottom: 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.disease-detail-card:last-child {
+  margin-bottom: 0;
+}
+
+.disease-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #eee;
+}
+
+.disease-header strong {
+  color: #2980b9;
+  font-size: 14px;
+}
+
+.btn-remove-disease {
+  background: #e74c3c;
+  color: white;
+  border: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.btn-remove-disease:hover {
+  background: #c0392b;
+}
+
+.disease-detail-card p {
+  margin: 6px 0;
+  font-size: 13px;
+  color: #34495e;
+  line-height: 1.5;
+}
+
+.disease-detail-card .label {
+  font-weight: 600;
+  color: #7f8c8d;
+  margin-right: 5px;
 }
 
 /* Medicine Section */

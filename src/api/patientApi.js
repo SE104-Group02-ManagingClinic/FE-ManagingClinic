@@ -71,9 +71,9 @@ export const searchPatientByCCCD = async (cccd) => {
     throw new Error(data.message || "CCCD không hợp lệ");
   }
 
-  if (response.status === 404) {
-    const data = await response.json();
-    throw new Error(data.message || "Không tìm thấy bệnh nhân");
+  // ✅ 404: Không tìm thấy bệnh nhân - trả về null thay vì throw error
+  if (response.status === 404 || response.status === 500) {
+    return null;
   }
 
   if (response.status === 304) {

@@ -2,9 +2,11 @@ import React, { useState } from "react";
 import "./Login.css";
 import { loginUser } from "../../api/userApi";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "../../contexts/ToastContext";
 
 const Login = () => {
   const navigate = useNavigate();
+  const { showSuccess, showError } = useToast();
   const [formData, setFormData] = useState({
     TenDangNhap: "",
     MatKhau: "",
@@ -12,7 +14,6 @@ const Login = () => {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -24,13 +25,10 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
     setError("");
-    setSuccess("");
 
     try {
       const result = await loginUser(formData.TenDangNhap, formData.MatKhau);
-      console.log("✅ Đăng nhập thành công:", result);
-
-      setSuccess(`Chào ${result.TenDangNhap}! Đăng nhập thành công.`);
+      showSuccess(`Chào ${result.TenDangNhap}! Đăng nhập thành công.`);
 
       // Lưu thông tin vào localStorage
       localStorage.setItem("user", JSON.stringify(result));
@@ -46,7 +44,7 @@ const Login = () => {
         navigate("/home");
       }, 500);
     } catch (error) {
-      console.error("❌ Lỗi khi đăng nhập:", error);
+      showError(error.message || "Đăng nhập thất bại!");
       setError(error.message || "Đăng nhập thất bại!");
     } finally {
       setLoading(false);
@@ -62,7 +60,6 @@ const Login = () => {
         </div>
 
         {error && <div className="alert alert-error">{error}</div>}
-        {success && <div className="alert alert-success">{success}</div>}
 
         <form className="login-form" onSubmit={handleSubmit}>
           <div className="form-group">

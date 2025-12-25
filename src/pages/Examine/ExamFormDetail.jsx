@@ -3,13 +3,16 @@ import "./ExamFormDetail.css";
 import { getExamFormById, updateMedicalExamForm, deleteMedicalExamForm } from "../../api/medicalExamFormApi";
 import { getAllDiseases } from "../../api/diseaseApi";
 import { getAllMedicines } from "../../api/medicineApi";
+import { useToast } from "../../contexts/ToastContext";
+import DeleteConfirmModal from "../../components/DeleteConfirmModal";
 
 const ExamFormDetail = ({ maPKB, onUpdate, onDelete, onClose }) => {
   const [examForm, setExamForm] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const [isEditing, setIsEditing] = useState(false);
+  const [deleteModal, setDeleteModal] = useState(false);
+  const { showSuccess, showError } = useToast();
 
   // Edit mode state
   const [editData, setEditData] = useState({
@@ -45,7 +48,7 @@ const ExamFormDetail = ({ maPKB, onUpdate, onDelete, onClose }) => {
         setMedicineRows(data.CT_Thuoc || []);
         setError("");
       } catch (err) {
-        console.error("Error loading exam form:", err);
+        showError(err.message || "Lỗi khi tải thông tin phiếu khám");
         setError(err.message || "Lỗi khi tải thông tin phiếu khám");
       } finally {
         setLoading(false);
@@ -68,7 +71,7 @@ const ExamFormDetail = ({ maPKB, onUpdate, onDelete, onClose }) => {
         setDiseases(diseasesData);
         setMedicines(medicinesData);
       } catch (err) {
-        console.error("Error loading reference data:", err);
+        showError("Lỗi khi tải dữ liệu tham chiếu");
       }
     };
 
@@ -93,7 +96,6 @@ const ExamFormDetail = ({ maPKB, onUpdate, onDelete, onClose }) => {
     }
     setIsEditing(!isEditing);
     setError("");
-    setSuccess("");
   };
 
   // Handle disease selection
@@ -161,10 +163,9 @@ const ExamFormDetail = ({ maPKB, onUpdate, onDelete, onClose }) => {
     try {
       setLoading(true);
       setError("");
-      setSuccess("");
 
       await updateMedicalExamForm(maPKB, editData);
-      setSuccess("Cập nhật phiếu khám bệnh thành công!");
+      showSuccess("Cập nhật phiếu khám bệnh thành công!");
       
       // Reload data
       const updatedData = await getExamFormById(maPKB);
@@ -175,7 +176,7 @@ const ExamFormDetail = ({ maPKB, onUpdate, onDelete, onClose }) => {
         onUpdate(updatedData);
       }
     } catch (err) {
-      console.error("Error updating exam form:", err);
+      showError(err.message || "Lỗi khi cập nhật phiếu khám");
       setError(err.message || "Lỗi khi cập nhật phiếu khám");
     } finally {
       setLoading(false);
@@ -184,14 +185,15 @@ const ExamFormDetail = ({ maPKB, onUpdate, onDelete, onClose }) => {
 
   // Handle delete
   const handleDelete = async () => {
-    if (!window.confirm("Bạn có chắc chắn muốn xóa phiếu khám này?")) {
-      return;
-    }
+    setDeleteModal(true);
+  };
 
+  const handleDeleteConfirm = async () => {
     try {
       setLoading(true);
       setError("");
       await deleteMedicalExamForm(maPKB);
+      setDeleteModal(false);
       
       if (onDelete) {
         onDelete(maPKB);
@@ -200,11 +202,17 @@ const ExamFormDetail = ({ maPKB, onUpdate, onDelete, onClose }) => {
       if (onClose) {
         onClose();
       }
+      
+      showSuccess("Đã xóa phiếu khám bệnh thành công!");
     } catch (err) {
-      console.error("Error deleting exam form:", err);
+      showError(err.message || "Lỗi khi xóa phiếu khám");
       setError(err.message || "Lỗi khi xóa phiếu khám");
       setLoading(false);
     }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteModal(false);
   };
 
   // Format currency
@@ -263,7 +271,6 @@ const ExamFormDetail = ({ maPKB, onUpdate, onDelete, onClose }) => {
       </div>
 
       {error && <div className="alert alert-error">{error}</div>}
-      {success && <div className="alert alert-success">{success}</div>}
 
       <div className="detail-content">
         {/* Patient Information */}
@@ -462,6 +469,15 @@ const ExamFormDetail = ({ maPKB, onUpdate, onDelete, onClose }) => {
           </span>
         </div>
       </div>
+
+      <DeleteConfirmModal
+        isOpen={deleteModal}
+        title={`Xóa phiếu khám bệnh #${maPKB}`}
+        message="Hành động này không thể hoàn tác. Bạn có chắc chắn muốn xóa?"
+        onConfirm={handleDeleteConfirm}
+        onCancel={handleDeleteCancel}
+        isLoading={loading}
+      />
     </div>
   );
 };

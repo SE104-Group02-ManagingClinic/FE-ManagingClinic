@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { createUnit, updateUnit } from "../../api/unitApi";
+import { useToast } from "../../contexts/ToastContext";
 
 const UnitForm = ({ unit = null, onSubmit, onCancel }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const { showError } = useToast();
   const [formData, setFormData] = useState({
     TenDVT: "",
   });
@@ -36,7 +38,7 @@ const UnitForm = ({ unit = null, onSubmit, onCancel }) => {
 
       onSubmit?.();
     } catch (err) {
-      console.error("Error saving unit:", err);
+      showError(err.message || "Lỗi khi lưu đơn vị tính");
       setError(err.message || "Lỗi khi lưu đơn vị tính");
     } finally {
       setLoading(false);

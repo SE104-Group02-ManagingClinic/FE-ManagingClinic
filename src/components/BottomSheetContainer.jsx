@@ -8,6 +8,7 @@ import UnitForm from '../pages/Medicines/UnitForm';
 import UsageForm from '../pages/Medicines/UsageForm';
 import DiseaseForm from '../pages/Examine/DiseaseForm';
 import { useBottomSheet } from '../contexts/BottomSheetContext';
+import { useToast } from '../contexts/ToastContext';
 
 const BottomSheetContainer = () => {
   const { 
@@ -22,6 +23,7 @@ const BottomSheetContainer = () => {
     editingDisease,
     setEditingDisease
   } = useBottomSheet();
+  const { showSuccess } = useToast();
 
   // Tự động set isBottomSheetOpen dựa trên bottomSheetState
   useEffect(() => {
@@ -45,7 +47,7 @@ const BottomSheetContainer = () => {
       >
         <ExamineForm 
           onSubmit={(result) => {
-            console.log('Exam form created:', result);
+            showSuccess('Tạo phiếu khám thành công!');
             triggerRefresh('examForms');
             handleClose('homeExamine');
           }}
@@ -59,7 +61,7 @@ const BottomSheetContainer = () => {
       >
         <PatientForm
           onSubmit={(result) => {
-            console.log('Patient created:', result);
+            showSuccess('Thêm bệnh nhân thành công!');
             triggerRefresh('patients');
             handleClose('homePatient');
           }}
@@ -74,7 +76,7 @@ const BottomSheetContainer = () => {
       >
         <ExamineForm 
           onSubmit={(result) => {
-            console.log('Exam form created:', result);
+            showSuccess('Tạo phiếu khám thành công!');
             triggerRefresh('examForms');
             handleClose('examineExamine');
           }}
@@ -88,7 +90,7 @@ const BottomSheetContainer = () => {
       >
         <PatientForm
           onSubmit={(result) => {
-            console.log('Patient created:', result);
+            showSuccess('Thêm bệnh nhân thành công!');
             triggerRefresh('patients');
             handleClose('examinePatient');
           }}
@@ -110,7 +112,7 @@ const BottomSheetContainer = () => {
       >
         <MedicineForm 
           onSubmit={() => {
-            console.log('Medicine form submitted');
+            showSuccess('Lưu thuốc thành công!');
             triggerRefresh('medicines');
             handleClose('medicinesForm');
           }}
@@ -128,7 +130,7 @@ const BottomSheetContainer = () => {
         <UnitForm 
           unit={editingUnit}
           onSubmit={() => {
-            console.log('Unit form submitted');
+            showSuccess('Lưu đơn vị tính thành công!');
             setEditingUnit(null);
             triggerRefresh('medicines');
             handleClose('unitForm');
@@ -150,7 +152,7 @@ const BottomSheetContainer = () => {
         <UsageForm 
           usage={editingUsage}
           onSubmit={() => {
-            console.log('Usage form submitted');
+            showSuccess('Lưu cách dùng thành công!');
             setEditingUsage(null);
             triggerRefresh('medicines');
             handleClose('usageForm');
@@ -173,7 +175,7 @@ const BottomSheetContainer = () => {
         <DiseaseForm 
           disease={editingDisease}
           onSubmit={() => {
-            console.log('Disease form submitted');
+            showSuccess('Lưu bệnh thành công!');
             setEditingDisease(null);
             triggerRefresh('diseases');
             handleClose('diseaseForm');

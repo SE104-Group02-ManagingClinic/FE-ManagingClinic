@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { getAllDiseases, deleteDisease } from "../../api/diseaseApi";
 import { useBottomSheet } from "../../contexts/BottomSheetContext";
+import { useToast } from "../../contexts/ToastContext";
+import DeleteConfirmModal from "../../components/DeleteConfirmModal";
 
 const Disease = () => {
   const [diseases, setDiseases] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [deleteModal, setDeleteModal] = useState({ isOpen: false, disease: null });
   const { refreshTriggers, setBottomSheetState, setEditingDisease } = useBottomSheet();
+  const { showSuccess, showError } = useToast();
 
   useEffect(() => {
     fetchDiseases();
@@ -20,7 +23,7 @@ const Disease = () => {
       setDiseases(data);
       setError("");
     } catch (err) {
-      console.error("Error loading diseases:", err);
+      showError(err.message || "Lỗi khi tải danh sách bệnh");
       setError(err.message || "Lỗi khi tải danh sách bệnh");
     } finally {
       setLoading(false);
@@ -33,28 +36,33 @@ const Disease = () => {
   };
 
   const handleDelete = async (disease) => {
-    if (!window.confirm(`Bạn có chắc chắn muốn xóa bệnh "${disease.TenBenh}"?`)) {
-      return;
-    }
+    setDeleteModal({ isOpen: true, disease });
+  };
 
+  const handleDeleteConfirm = async () => {
+    const disease = deleteModal.disease;
     try {
       setLoading(true);
       setError("");
       await deleteDisease(disease.MaBenh);
-      setSuccess(`Đã xóa bệnh "${disease.TenBenh}" thành công!`);
+      showSuccess(`Đã xóa bệnh "${disease.TenBenh}" thành công!`);
+      setDeleteModal({ isOpen: false, disease: null });
       await fetchDiseases();
     } catch (err) {
-      console.error("Error deleting disease:", err);
+      showError(err.message || "Lỗi khi xóa bệnh");
       setError(err.message || "Lỗi khi xóa bệnh");
     } finally {
       setLoading(false);
     }
   };
 
+  const handleDeleteCancel = () => {
+    setDeleteModal({ isOpen: false, disease: null });
+  };
+
   return (
     <div className="tab-content">
       {error && <div className="alert alert-error">{error}</div>}
-      {success && <div className="alert alert-success">{success}</div>}
 
       {loading && !diseases.length ? (
         <div className="loading">Đang tải...</div>
@@ -107,6 +115,15 @@ const Disease = () => {
           </table>
         </div>
       )}
+
+      <DeleteConfirmModal
+        isOpen={deleteModal.isOpen}
+        title={`Xóa bệnh "${deleteModal.disease?.TenBenh || ""}"`}
+        message="Hành động này không thể hoàn tác. Bạn có chắc chắn muốn xóa?"
+        onConfirm={handleDeleteConfirm}
+        onCancel={handleDeleteCancel}
+        isLoading={loading}
+      />
     </div>
   );
 };

@@ -14,7 +14,7 @@
 
 .sidebar-item-label {
     display: flex;
-    color: #ffffff;
+    color: #333333;
     min-height: 40px;
     min-width: 50px;
     height:100%;
@@ -47,7 +47,7 @@
 opacity:0%;
 }
 .sidebar-item:hover {
-  background-color: rgba(255, 255, 255, 0.1); /* Màu nền khi hover */
+  background-color: rgba(0, 0, 0, 0.05); /* Màu nền khi hover */
 }
 .sidebar-item:hover .indicator {    
   height: 35%;
