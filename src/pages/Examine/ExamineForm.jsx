@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from "react";
 import "./ExamineForm.css";
-import { createMedicalExamForm, updateMedicalExamForm } from "../../api/medicalExamFormApi";
+import { createMedicalExamForm, updateMedicalExamForm, confirmMedicalExamForm } from "../../api/medicalExamFormApi";
 import { getAllDiseases } from "../../api/diseaseApi";
 import { getAllMedicines } from "../../api/medicineApi";
 import { searchPatientByCCCD, createPatient } from "../../api/patientApi";
 import { useBottomSheet } from "../../contexts/BottomSheetContext";
 import { useToast } from "../../contexts/ToastContext";
 
-const ExamineForm = ({ initialData, onSubmit, onCancel }) => {
+const ExamineForm = ({ initialData, initialPatient, onSubmit, onCancel }) => {
   const isEditMode = !!initialData?.MaPKB;
   const { getPendingPatientByCCCD, removePendingPatient, addPendingPatient, refreshTriggers } = useBottomSheet();
   const { showSuccess, showError, showInfo, showWarning } = useToast();
   
   // Form state
   const [formData, setFormData] = useState({
-    MaBN: initialData?.MaBN || "",
+    MaBN: initialData?.MaBN || initialPatient?.MaBN || "",
     NgayKham: initialData?.NgayKham || new Date().toISOString().split('T')[0],
     TrieuChung: initialData?.TrieuChung || "",
     CT_Benh: initialData?.CT_Benh?.map(b => b.MaBenh || b) || [],
@@ -23,8 +23,8 @@ const ExamineForm = ({ initialData, onSubmit, onCancel }) => {
   });
 
   // Patient search
-  const [cccdSearch, setCccdSearch] = useState(initialData?.CCCD || "");
-  const [patientInfo, setPatientInfo] = useState(null);
+  const [cccdSearch, setCccdSearch] = useState(initialData?.CCCD || initialPatient?.CCCD || "");
+  const [patientInfo, setPatientInfo] = useState(initialPatient || null);
   const [searchError, setSearchError] = useState("");
 
   // Dropdowns data
@@ -37,8 +37,12 @@ const ExamineForm = ({ initialData, onSubmit, onCancel }) => {
     if (initialData?.CT_Thuoc && initialData.CT_Thuoc.length > 0) {
       return initialData.CT_Thuoc;
     }
-    return [{ MaThuoc: "", SoLuong: 1, GiaBan: 0, ThanhTien: 0 }];
+    return [{ MaThuoc: "", SoLuong: 1, GiaBan: 0, ThanhTien: 0, MaLo: null, lotStatus: null }];
   });
+
+  // Trạng thái kiểm tra lô thuốc
+  const [checkingLots, setCheckingLots] = useState(false);
+  const [lotCheckResults, setLotCheckResults] = useState({}); // { MaThuoc: { MaLo, available } }
 
   // Sync medicineRows when initialData changes (for edit mode)
   useEffect(() => {
@@ -177,9 +181,15 @@ const ExamineForm = ({ initialData, onSubmit, onCancel }) => {
   };
 
   // Handle medicine row changes
-  const handleMedicineChange = (index, field, value) => {
+  const handleMedicineChange = async (index, field, value) => {
     const updatedRows = [...medicineRows];
     updatedRows[index][field] = value;
+
+    // Reset lot status when quantity or medicine changes
+    if (field === "SoLuong" || field === "MaThuoc") {
+      updatedRows[index].MaLo = null;
+      updatedRows[index].lotStatus = null;
+    }
 
     // Auto-calculate ThanhTien when SoLuong or GiaBan changes
     if (field === "SoLuong" || field === "GiaBan") {
@@ -209,15 +219,77 @@ const ExamineForm = ({ initialData, onSubmit, onCancel }) => {
     }));
   };
 
+  // Kiểm tra lô thuốc có đủ số lượng không
+  const handleCheckMedicineLots = async () => {
+    const medicinesWithQuantity = medicineRows.filter(row => row.MaThuoc && row.SoLuong > 0);
+    
+    if (medicinesWithQuantity.length === 0) {
+      showWarning("Vui lòng chọn thuốc và nhập số lượng trước khi kiểm tra lô");
+      return;
+    }
+
+    setCheckingLots(true);
+    try {
+      const checkData = medicinesWithQuantity.map(row => ({
+        MaThuoc: row.MaThuoc,
+        SoLuong: parseInt(row.SoLuong, 10),
+      }));
+
+      const results = await confirmMedicalExamForm(checkData);
+      
+      // Cập nhật kết quả vào medicineRows
+      const updatedRows = medicineRows.map(row => {
+        if (!row.MaThuoc) return row;
+        
+        const lotResult = results.find(r => r.MaThuoc === row.MaThuoc);
+        if (lotResult) {
+          return {
+            ...row,
+            MaLo: lotResult.MaLo,
+            lotStatus: lotResult.MaLo ? 'available' : 'unavailable',
+          };
+        }
+        return row;
+      });
+
+      setMedicineRows(updatedRows);
+      
+      // Cập nhật formData với MaLo
+      setFormData(prev => ({
+        ...prev,
+        CT_Thuoc: updatedRows.filter(row => row.MaThuoc).map(row => ({
+          ...row,
+          MaLo: row.MaLo,
+        })),
+      }));
+
+      // Kiểm tra xem có thuốc nào không đủ lô không
+      const unavailableMedicines = updatedRows.filter(row => row.MaThuoc && row.lotStatus === 'unavailable');
+      if (unavailableMedicines.length > 0) {
+        const names = unavailableMedicines.map(row => {
+          const med = medicines.find(m => m.MaThuoc === row.MaThuoc);
+          return med?.TenThuoc || row.MaThuoc;
+        }).join(', ');
+        showWarning(`Không đủ số lượng trong 1 lô cho: ${names}. Vui lòng điều chỉnh số lượng.`);
+      } else {
+        showSuccess("Tất cả thuốc đều có đủ số lượng trong lô!");
+      }
+    } catch (err) {
+      showError(err.message || "Lỗi khi kiểm tra lô thuốc");
+    } finally {
+      setCheckingLots(false);
+    }
+  };
+
   // Add medicine row
   const handleAddMedicineRow = () => {
-    setMedicineRows([...medicineRows, { MaThuoc: "", SoLuong: 1, GiaBan: 0, ThanhTien: 0 }]);
+    setMedicineRows([...medicineRows, { MaThuoc: "", SoLuong: 1, GiaBan: 0, ThanhTien: 0, MaLo: null, lotStatus: null }]);
   };
 
   // Remove medicine row
   const handleRemoveMedicineRow = (index) => {
     const updatedRows = medicineRows.filter((_, i) => i !== index);
-    setMedicineRows(updatedRows.length > 0 ? updatedRows : [{ MaThuoc: "", SoLuong: 1, GiaBan: 0, ThanhTien: 0 }]);
+    setMedicineRows(updatedRows.length > 0 ? updatedRows : [{ MaThuoc: "", SoLuong: 1, GiaBan: 0, ThanhTien: 0, MaLo: null, lotStatus: null }]);
     
     // Recalculate total
     const total = updatedRows.reduce((sum, row) => sum + (parseFloat(row.ThanhTien) || 0), 0);
@@ -244,6 +316,28 @@ const ExamineForm = ({ initialData, onSubmit, onCancel }) => {
     if (!formData.TrieuChung || formData.TrieuChung.trim() === "") {
       showWarning("Vui lòng nhập triệu chứng");
       return;
+    }
+
+    // Kiểm tra thuốc đã được check lô chưa
+    const medicinesWithQuantity = medicineRows.filter(row => row.MaThuoc && row.SoLuong > 0);
+    if (medicinesWithQuantity.length > 0) {
+      // Kiểm tra xem tất cả thuốc đã được check lô chưa
+      const uncheckedMedicines = medicinesWithQuantity.filter(row => !row.MaLo && row.lotStatus !== 'unavailable');
+      if (uncheckedMedicines.length > 0 && !isEditMode) {
+        showWarning("Vui lòng kiểm tra lô thuốc trước khi tạo phiếu khám");
+        return;
+      }
+
+      // Kiểm tra xem có thuốc nào không đủ lô không
+      const unavailableMedicines = medicinesWithQuantity.filter(row => row.lotStatus === 'unavailable');
+      if (unavailableMedicines.length > 0) {
+        const names = unavailableMedicines.map(row => {
+          const med = medicines.find(m => m.MaThuoc === row.MaThuoc);
+          return med?.TenThuoc || row.MaThuoc;
+        }).join(', ');
+        showError(`Không đủ số lượng trong 1 lô cho: ${names}. Vui lòng điều chỉnh số lượng.`);
+        return;
+      }
     }
 
     try {
@@ -558,9 +652,19 @@ const ExamineForm = ({ initialData, onSubmit, onCancel }) => {
         <div className="medicine-section">
           <div className="section-header">
             <h3>Danh sách thuốc</h3>
-            <button type="button" onClick={handleAddMedicineRow} className="btn-add">
-              + Thêm thuốc
-            </button>
+            <div className="section-actions">
+              <button 
+                type="button" 
+                onClick={handleCheckMedicineLots} 
+                className="btn-check-lot"
+                disabled={checkingLots || isEditMode}
+              >
+                {checkingLots ? "Đang kiểm tra..." : "🔍 Kiểm tra lô thuốc"}
+              </button>
+              <button type="button" onClick={handleAddMedicineRow} className="btn-add">
+                + Thêm thuốc
+              </button>
+            </div>
           </div>
 
           <table className="ticket-table">
@@ -571,12 +675,13 @@ const ExamineForm = ({ initialData, onSubmit, onCancel }) => {
                 <th>Số lượng *</th>
                 <th>Đơn giá</th>
                 <th>Thành tiền</th>
+                <th>Lô thuốc</th>
                 <th>Thao tác</th>
               </tr>
             </thead>
             <tbody>
               {medicineRows.map((row, index) => (
-                <tr key={index}>
+                <tr key={index} className={row.lotStatus === 'unavailable' ? 'row-unavailable' : row.lotStatus === 'available' ? 'row-available' : ''}>
                   <td>{index + 1}</td>
                   <td>
                     <select
@@ -608,6 +713,17 @@ const ExamineForm = ({ initialData, onSubmit, onCancel }) => {
                     />
                   </td>
                   <td>{formatCurrency(row.ThanhTien)}</td>
+                  <td className="lot-cell">
+                    {row.lotStatus === 'available' && (
+                      <span className="lot-badge available">✅ {row.MaLo}</span>
+                    )}
+                    {row.lotStatus === 'unavailable' && (
+                      <span className="lot-badge unavailable">❌ Không đủ</span>
+                    )}
+                    {!row.lotStatus && row.MaThuoc && (
+                      <span className="lot-badge pending">⏳ Chưa kiểm tra</span>
+                    )}
+                  </td>
                   <td>
                     <button
                       type="button"
@@ -622,6 +738,12 @@ const ExamineForm = ({ initialData, onSubmit, onCancel }) => {
               ))}
             </tbody>
           </table>
+          
+          {!isEditMode && medicineRows.some(row => row.MaThuoc) && (
+            <p className="lot-check-hint">
+              💡 <strong>Lưu ý:</strong> Hãy kiểm tra lô thuốc trước khi tạo phiếu khám để đảm bảo có đủ số lượng trong 1 lô.
+            </p>
+          )}
         </div>
 
         {/* Total */}

@@ -7,9 +7,11 @@ export const BottomSheetProvider = ({ children }) => {
   const [bottomSheetState, setBottomSheetState] = useState({
     homeExamine: false,
     homePatient: false,
+    homeReception: false, // Tiếp nhận bệnh nhân
     examineExamine: false,
     examinePatient: false,
     examineSearch: false,
+    examinePatientData: null, // Dữ liệu bệnh nhân khi tạo phiếu khám từ danh sách
     medicinesForm: false,
     medicineImportForm: false,
     unitForm: false,
@@ -18,14 +20,17 @@ export const BottomSheetProvider = ({ children }) => {
   });
   const [refreshTriggers, setRefreshTriggers] = useState({
     examForms: 0,
+    examList: 0, // Danh sách khám bệnh
     patients: 0,
     medicines: 0,
     diseases: 0,
+    invoices: 0, // Hóa đơn
   });
 
   const [editingUnit, setEditingUnit] = useState(null);
   const [editingUsage, setEditingUsage] = useState(null);
   const [editingDisease, setEditingDisease] = useState(null);
+  const [editingMedicine, setEditingMedicine] = useState(null);
 
   // Pending patients - bệnh nhân chưa lưu vào database
   const [pendingPatients, setPendingPatients] = useState([]);
@@ -81,6 +86,8 @@ export const BottomSheetProvider = ({ children }) => {
       setEditingUsage,
       editingDisease,
       setEditingDisease,
+      editingMedicine,
+      setEditingMedicine,
       // Pending patients
       pendingPatients,
       addPendingPatient,

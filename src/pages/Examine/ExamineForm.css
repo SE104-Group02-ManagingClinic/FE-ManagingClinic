@@ -494,6 +494,87 @@
   background: #7f8c8d;
 }
 
+/* Section Header with Actions */
+.medicine-section .section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.medicine-section .section-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-check-lot {
+  padding: 8px 16px;
+  background: #17a2b8;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: background 0.2s ease;
+}
+
+.btn-check-lot:hover:not(:disabled) {
+  background: #138496;
+}
+
+.btn-check-lot:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+}
+
+/* Lot Check Styling */
+.ticket-table .row-available {
+  background: #d4edda;
+}
+
+.ticket-table .row-unavailable {
+  background: #f8d7da;
+}
+
+.ticket-table .lot-cell {
+  min-width: 120px;
+}
+
+.lot-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.lot-badge.available {
+  background: #28a745;
+  color: white;
+}
+
+.lot-badge.unavailable {
+  background: #dc3545;
+  color: white;
+}
+
+.lot-badge.pending {
+  background: #6c757d;
+  color: white;
+}
+
+.lot-check-hint {
+  margin-top: 12px;
+  padding: 10px 14px;
+  background: #e7f5ff;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #0c5460;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .ticket-container {
@@ -525,5 +606,17 @@
   .btn-cancel {
     width: 100%;
   }
+  
+  .medicine-section .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .medicine-section .section-actions {
+    width: 100%;
+  }
+  
+  .medicine-section .section-actions button {
+    flex: 1;
+  }
 }
-

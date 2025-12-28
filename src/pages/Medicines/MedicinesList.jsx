@@ -1,25 +1,27 @@
 import React, { useState, useEffect } from "react";
 import { getAllMedicines, deleteMedicine, searchMedicines } from "../../api/medicineApi";
-import SideSheet from "../SideSheet/SideSheet";
+import { deleteMedicineImportByBatchId } from "../../api/medicineImportApi";
 import { useBottomSheet } from "../../contexts/BottomSheetContext";
 import { useToast } from "../../contexts/ToastContext";
 import DeleteConfirmModal from "../../components/DeleteConfirmModal";
 import PermissionGuard from "../../components/PermissionGuard";
+import BottomSheet from "../BottomSheet/BottomSheet";
 
 const MedicinesList = () => {
   const [medicines, setMedicines] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, medicine: null });
+  const [deleteBatchModal, setDeleteBatchModal] = useState({ isOpen: false, batch: null, medicineName: "" });
   const [searchTenThuoc, setSearchTenThuoc] = useState("");
   const [searchCongDung, setSearchCongDung] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   
-  const { setBottomSheetState, refreshTriggers } = useBottomSheet();
+  const { setBottomSheetState, refreshTriggers, setEditingMedicine } = useBottomSheet();
   const { showSuccess, showError } = useToast();
   
-  // SideSheet state for viewing details
-  const [showSideSheet, setShowSideSheet] = useState(false);
+  // BottomSheet state for viewing details
+  const [showMedicineDetail, setShowMedicineDetail] = useState(false);
   const [viewingMedicine, setViewingMedicine] = useState(null);
 
   // Load medicines on mount and on refresh
@@ -45,13 +47,18 @@ const MedicinesList = () => {
     setBottomSheetState(prev => ({ ...prev, medicinesForm: true }));
   };
 
-  const handleViewDetail = (medicine) => {
-    setViewingMedicine(medicine);
-    setShowSideSheet(true);
+  const handleEditMedicine = (medicine) => {
+    setEditingMedicine(medicine);
+    setBottomSheetState(prev => ({ ...prev, medicinesForm: true }));
   };
 
-  const handleCloseSideSheet = () => {
-    setShowSideSheet(false);
+  const handleViewDetail = (medicine) => {
+    setViewingMedicine(medicine);
+    setShowMedicineDetail(true);
+  };
+
+  const handleCloseMedicineDetail = () => {
+    setShowMedicineDetail(false);
     setViewingMedicine(null);
   };
 
@@ -78,6 +85,31 @@ const MedicinesList = () => {
 
   const handleDeleteCancel = () => {
     setDeleteModal({ isOpen: false, medicine: null });
+  };
+
+  const handleDeleteBatch = (batch, medicineName) => {
+    setDeleteBatchModal({ isOpen: true, batch, medicineName });
+  };
+
+  const handleDeleteBatchConfirm = async () => {
+    const batch = deleteBatchModal.batch;
+    try {
+      setLoading(true);
+      setError("");
+      await deleteMedicineImportByBatchId(batch.MaLo);
+      showSuccess(`Đã xóa lô thuốc "${batch.MaLo}" thành công!`);
+      setDeleteBatchModal({ isOpen: false, batch: null, medicineName: "" });
+      await fetchMedicines();
+    } catch (err) {
+      showError(err.message || "Lỗi khi xóa lô thuốc");
+      setError(err.message || "Lỗi khi xóa lô thuốc");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteBatchCancel = () => {
+    setDeleteBatchModal({ isOpen: false, batch: null, medicineName: "" });
   };
 
   const handleSearch = async () => {
@@ -189,14 +221,13 @@ const MedicinesList = () => {
                   <th>Đơn vị tính</th>
                   <th>Cách dùng</th>
                   <th>Tác dụng phụ</th>
-                  <th>Giá bán</th>
                   <th>Thao tác</th>
                 </tr>
               </thead>
               <tbody>
                 {medicines.length === 0 ? (
                   <tr>
-                    <td colSpan="8" style={{ textAlign: "center" }}>
+                    <td colSpan="7" style={{ textAlign: "center" }}>
                       Chưa có thuốc nào
                     </td>
                   </tr>
@@ -209,13 +240,12 @@ const MedicinesList = () => {
                       <td onClick={() => handleViewDetail(medicine)} style={{ cursor: 'pointer' }}>{medicine.TenDVT || "N/A"}</td>
                       <td onClick={() => handleViewDetail(medicine)} style={{ cursor: 'pointer' }}>{medicine.TenCachDung || "N/A"}</td>
                       <td onClick={() => handleViewDetail(medicine)} style={{ cursor: 'pointer' }} title={medicine.TacDungPhu || "N/A"}>{medicine.TacDungPhu ? medicine.TacDungPhu.substring(0, 30) + (medicine.TacDungPhu.length > 30 ? "..." : "") : "N/A"}</td>
-                      <td onClick={() => handleViewDetail(medicine)} style={{ cursor: 'pointer' }}>{formatCurrency(medicine.GiaBan)}</td>
                       <td>
                         <div className="action-buttons">
                           <PermissionGuard feature="medicine-edit" hide>
                             <button
                               className="btn-edit-small"
-                              onClick={() => handleOpenModal()}
+                              onClick={() => handleEditMedicine(medicine)}
                               data-feature="medicine-edit"
                             >
                               Sửa
@@ -240,18 +270,15 @@ const MedicinesList = () => {
           </div>
         )}
 
-        {/* SideSheet for View Details */}
-        <SideSheet isOpen={showSideSheet} onClose={handleCloseSideSheet}>
+        {/* BottomSheet for View Details */}
+        <BottomSheet isOpen={showMedicineDetail} onClose={handleCloseMedicineDetail}>
           {viewingMedicine && (
-            <div className="medicine-detail-container">
-              <div className="medicine-detail-header">
-                <h3>Chi tiết thuốc</h3>
-                <button className="btn-close" onClick={handleCloseSideSheet}>
-                  ×
-                </button>
+            <div className="medicine-detail-content">
+              <div className="detail-header">
+                <h3>Chi tiết loại thuốc</h3>
               </div>
 
-              <div className="medicine-detail-body">
+              <div className="detail-body">
                 <div className="detail-row">
                   <span className="detail-label">Mã thuốc:</span>
                   <span className="detail-value">{viewingMedicine.MaThuoc}</span>
@@ -299,6 +326,16 @@ const MedicinesList = () => {
                         <div key={batch.MaLo} className="batch-card">
                           <div className="batch-card-header">
                             <span className="batch-code">Lô: <strong>{batch.MaLo}</strong></span>
+                            <PermissionGuard feature="medicine-import" hide>
+                              <button
+                                className="btn-delete-batch"
+                                onClick={() => handleDeleteBatch(batch, viewingMedicine.TenThuoc)}
+                                title="Xóa phiếu nhập thuốc"
+                                data-feature="medicine-import"
+                              >
+                                ✕
+                              </button>
+                            </PermissionGuard>
                           </div>
                           <div className="batch-card-body">
                             <div className="batch-info-item">
@@ -332,8 +369,8 @@ const MedicinesList = () => {
                     <button 
                       className="btn-edit" 
                       onClick={() => {
-                        handleCloseSideSheet();
-                        handleOpenModal();
+                        handleCloseMedicineDetail();
+                        handleEditMedicine(viewingMedicine);
                       }}
                       data-feature="medicine-edit"
                     >
@@ -344,7 +381,7 @@ const MedicinesList = () => {
                     <button 
                       className="btn-delete" 
                       onClick={() => {
-                        handleCloseSideSheet();
+                        handleCloseMedicineDetail();
                         handleDelete(viewingMedicine);
                       }}
                       data-feature="medicine-delete"
@@ -356,7 +393,7 @@ const MedicinesList = () => {
               </div>
             </div>
           )}
-        </SideSheet>
+        </BottomSheet>
 
         <DeleteConfirmModal
           isOpen={deleteModal.isOpen}
@@ -364,6 +401,15 @@ const MedicinesList = () => {
           message="Hành động này không thể hoàn tác. Bạn có chắc chắn muốn xóa?"
           onConfirm={handleDeleteConfirm}
           onCancel={handleDeleteCancel}
+          isLoading={loading}
+        />
+
+        <DeleteConfirmModal
+          isOpen={deleteBatchModal.isOpen}
+          title={`Xóa phiếu nhập thuốc - Lô ${deleteBatchModal.batch?.MaLo || ""}`}
+          message={`Bạn có chắc chắn muốn xóa lô thuốc này? Hành động này không thể hoàn tác.\n\nThuốc: ${deleteBatchModal.medicineName}`}
+          onConfirm={handleDeleteBatchConfirm}
+          onCancel={handleDeleteBatchCancel}
           isLoading={loading}
         />
       </div>

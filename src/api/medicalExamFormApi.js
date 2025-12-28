@@ -1,6 +1,44 @@
 ﻿// src/api/medicalExamFormApi.js
 
 /**
+ * Kiểm tra tồn kho và lấy mã lô phù hợp
+ * @param {Array} medicines - Danh sách thuốc [{MaThuoc, SoLuong}, ...]
+ * @returns {Promise<Array>} Danh sách thuốc kèm mã lô [{MaThuoc, MaLo}, ...]
+ */
+export const confirmMedicalExamForm = async (medicines) => {
+  if (!Array.isArray(medicines) || medicines.length === 0) {
+    throw new Error("Danh sách thuốc không được để trống");
+  }
+
+  const payload = medicines.map(thuoc => ({
+    MaThuoc: thuoc.MaThuoc,
+    SoLuong: thuoc.SoLuong,
+  }));
+
+  const response = await fetch("/api/medicalExamForm/confirmMedicalExamForm", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  // ✅ Xử lý theo STATUS từ Swagger
+  if (response.status === 400) {
+    throw new Error("Danh sách thuốc không hợp lệ");
+  }
+
+  if (!response.ok) {
+    // 500 hoặc lỗi khác
+    const data = await response.json();
+    throw new Error(data.error || "Lỗi hệ thống khi kiểm tra tồn kho");
+  }
+
+  // ✅ 200 OK
+  return response.json();
+};
+
+/**
  * Tạo phiếu khám bệnh (PKB)
  * @param {object} formData - Dữ liệu phiếu khám bệnh
  * @returns {Promise<object>} Thông tin PKB vừa tạo (bao gồm MaPKB)
@@ -18,9 +56,9 @@ export const createMedicalExamForm = async (formData) => {
     CT_Benh: formData.CT_Benh || [],
     CT_Thuoc: (formData.CT_Thuoc || []).map(thuoc => ({
       MaThuoc: thuoc.MaThuoc,
+      MaLo: thuoc.MaLo, // Mã lô bắt buộc (lấy từ confirmMedicalExamForm)
       SoLuong: thuoc.SoLuong,
       DonGiaBan: thuoc.GiaBan || thuoc.DonGiaBan, // Map GiaBan to DonGiaBan
-      ThanhTien: thuoc.ThanhTien
     })),
     TongTienThuoc: formData.TongTienThuoc || 0,
   };
