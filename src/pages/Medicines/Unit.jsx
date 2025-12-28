@@ -3,6 +3,7 @@ import { getAllUnits, createUnit, updateUnit, deleteUnit } from "../../api/unitA
 import { useBottomSheet } from "../../contexts/BottomSheetContext";
 import { useToast } from "../../contexts/ToastContext";
 import DeleteConfirmModal from "../../components/DeleteConfirmModal";
+import PermissionGuard from "../../components/PermissionGuard";
 
 const Unit = () => {
   const [units, setUnits] = useState([]);
@@ -61,66 +62,83 @@ const Unit = () => {
   };
 
   return (
-    <div className="tab-content">
-      {error && <div className="alert alert-error">{error}</div>}
+    <PermissionGuard
+      feature="unit-list"
+      fallback={
+        <div className="tab-content">
+          <div className="alert alert-warning">
+            Bạn không có quyền xem danh sách đơn vị tính
+          </div>
+        </div>
+      }
+    >
+      <div className="tab-content" data-feature="unit-list">
+        {error && <div className="alert alert-error">{error}</div>}
 
-      {loading && !units.length ? (
-        <div className="loading">Đang tải...</div>
-      ) : (
-        <div className="table-wrapper">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Mã đơn vị tính</th>
-                <th>Tên đơn vị tính</th>
-                <th>Thao tác</th>
-              </tr>
-            </thead>
-            <tbody>
-              {units.length === 0 ? (
+        {loading && !units.length ? (
+          <div className="loading">Đang tải...</div>
+        ) : (
+          <div className="table-wrapper">
+            <table className="data-table">
+              <thead>
                 <tr>
-                  <td colSpan="3" style={{ textAlign: "center" }}>
-                    Chưa có đơn vị tính nào
-                  </td>
+                  <th>Mã đơn vị tính</th>
+                  <th>Tên đơn vị tính</th>
+                  <th>Thao tác</th>
                 </tr>
-              ) : (
-                units.map((unit) => (
-                  <tr key={unit.MaDVT}>
-                    <td>{unit.MaDVT}</td>
-                    <td>{unit.TenDVT}</td>
-                    <td>
-                      <div className="action-buttons">
-                        <button
-                          className="btn-edit-small"
-                          onClick={() => handleEdit(unit)}
-                        >
-                          Sửa
-                        </button>
-                        <button
-                          className="btn-delete-small"
-                          onClick={() => handleDelete(unit)}
-                        >
-                          Xóa
-                        </button>
-                      </div>
+              </thead>
+              <tbody>
+                {units.length === 0 ? (
+                  <tr>
+                    <td colSpan="3" style={{ textAlign: "center" }}>
+                      Chưa có đơn vị tính nào
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      )}
+                ) : (
+                  units.map((unit) => (
+                    <tr key={unit.MaDVT}>
+                      <td>{unit.MaDVT}</td>
+                      <td>{unit.TenDVT}</td>
+                      <td>
+                        <div className="action-buttons">
+                          <PermissionGuard feature="unit-edit" hide>
+                            <button
+                              className="btn-edit-small"
+                              onClick={() => handleEdit(unit)}
+                              data-feature="unit-edit"
+                            >
+                              Sửa
+                            </button>
+                          </PermissionGuard>
+                          <PermissionGuard feature="unit-delete" hide>
+                            <button
+                              className="btn-delete-small"
+                              onClick={() => handleDelete(unit)}
+                              data-feature="unit-delete"
+                            >
+                              Xóa
+                            </button>
+                          </PermissionGuard>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
 
-      <DeleteConfirmModal
-        isOpen={deleteModal.isOpen}
-        title={`Xóa đơn vị tính "${deleteModal.unit?.TenDVT || ""}"`}
-        message="Hành động này không thể hoàn tác. Bạn có chắc chắn muốn xóa?"
-        onConfirm={handleDeleteConfirm}
-        onCancel={handleDeleteCancel}
-        isLoading={loading}
-      />
-    </div>
+        <DeleteConfirmModal
+          isOpen={deleteModal.isOpen}
+          title={`Xóa đơn vị tính "${deleteModal.unit?.TenDVT || ""}"`}
+          message="Hành động này không thể hoàn tác. Bạn có chắc chắn muốn xóa?"
+          onConfirm={handleDeleteConfirm}
+          onCancel={handleDeleteCancel}
+          isLoading={loading}
+        />
+      </div>
+    </PermissionGuard>
   );
 };
 

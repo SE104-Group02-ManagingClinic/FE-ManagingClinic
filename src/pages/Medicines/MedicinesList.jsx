@@ -1,15 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { getAllMedicines, deleteMedicine } from "../../api/medicineApi";
+import { getAllMedicines, deleteMedicine, searchMedicines } from "../../api/medicineApi";
 import SideSheet from "../SideSheet/SideSheet";
 import { useBottomSheet } from "../../contexts/BottomSheetContext";
 import { useToast } from "../../contexts/ToastContext";
 import DeleteConfirmModal from "../../components/DeleteConfirmModal";
+import PermissionGuard from "../../components/PermissionGuard";
 
 const MedicinesList = () => {
   const [medicines, setMedicines] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, medicine: null });
+  const [searchTenThuoc, setSearchTenThuoc] = useState("");
+  const [searchCongDung, setSearchCongDung] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
   
   const { setBottomSheetState, refreshTriggers } = useBottomSheet();
   const { showSuccess, showError } = useToast();
@@ -76,6 +80,39 @@ const MedicinesList = () => {
     setDeleteModal({ isOpen: false, medicine: null });
   };
 
+  const handleSearch = async () => {
+    if (!searchTenThuoc.trim() && !searchCongDung.trim()) {
+      showError("Vui lòng nhập tên thuốc hoặc công dụng để tìm kiếm");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError("");
+      setIsSearching(true);
+      const data = await searchMedicines(searchTenThuoc, searchCongDung);
+      setMedicines(data);
+    } catch (err) {
+      showError(err.message || "Lỗi khi tìm kiếm thuốc");
+      setError(err.message || "Lỗi khi tìm kiếm thuốc");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleClearSearch = async () => {
+    setSearchTenThuoc("");
+    setSearchCongDung("");
+    setIsSearching(false);
+    await fetchMedicines();
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
+
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat("vi-VN", {
       style: "currency",
@@ -84,155 +121,253 @@ const MedicinesList = () => {
   };
 
   return (
-    <div className="tab-content">
-      {error && <div className="alert alert-error">{error}</div>}
+    <PermissionGuard 
+      feature="medicine-list"
+      fallback={
+        <div className="tab-content">
+          <div className="alert alert-warning">
+            Bạn không có quyền xem danh sách thuốc
+          </div>
+        </div>
+      }
+    >
+      <div className="tab-content" data-feature="medicine-list">
+        {error && <div className="alert alert-error">{error}</div>}
 
-      {loading && !medicines.length ? (
-        <div className="loading">Đang tải...</div>
-      ) : (
-        <div className="medicines-table-wrapper">
-          <table className="medicines-table">
-            <thead>
-              <tr>
-                <th>Mã thuốc</th>
-                <th>Tên thuốc</th>
-                <th>Đơn vị tính</th>
-                <th>Cách dùng</th>
-                <th>Số lượng tồn</th>
-                <th>Giá bán</th>
-                <th>Thao tác</th>
-              </tr>
-            </thead>
-            <tbody>
-              {medicines.length === 0 ? (
+        {/* Search Section */}
+        <div className="medicine-search-container">
+          <div className="search-form">
+            <div className="search-input-group">
+              <input
+                type="text"
+                placeholder="Nhập tên thuốc..."
+                value={searchTenThuoc}
+                onChange={(e) => setSearchTenThuoc(e.target.value)}
+                onKeyPress={handleKeyPress}
+                className="search-input"
+              />
+            </div>
+            <div className="search-input-group">
+              <input
+                type="text"
+                placeholder="Nhập công dụng..."
+                value={searchCongDung}
+                onChange={(e) => setSearchCongDung(e.target.value)}
+                onKeyPress={handleKeyPress}
+                className="search-input"
+              />
+            </div>
+            <button
+              className="btn-search"
+              onClick={handleSearch}
+              disabled={loading}
+            >
+              Tìm kiếm
+            </button>
+            {isSearching && (
+              <button
+                className="btn-clear"
+                onClick={handleClearSearch}
+                disabled={loading}
+              >
+                Xóa tìm kiếm
+              </button>
+            )}
+          </div>
+        </div>
+
+        {loading && !medicines.length ? (
+          <div className="loading">Đang tải...</div>
+        ) : (
+          <div className="medicines-table-wrapper">
+            <table className="medicines-table">
+              <thead>
                 <tr>
-                  <td colSpan="7" style={{ textAlign: "center" }}>
-                    Chưa có thuốc nào
-                  </td>
+                  <th>Mã thuốc</th>
+                  <th>Tên thuốc</th>
+                  <th>Công dụng</th>
+                  <th>Đơn vị tính</th>
+                  <th>Cách dùng</th>
+                  <th>Tác dụng phụ</th>
+                  <th>Giá bán</th>
+                  <th>Thao tác</th>
                 </tr>
-              ) : (
-                medicines.map((medicine) => (
-                  <tr key={medicine.MaThuoc}>
-                    <td onClick={() => handleViewDetail(medicine)} style={{ cursor: 'pointer' }}>{medicine.MaThuoc}</td>
-                    <td onClick={() => handleViewDetail(medicine)} style={{ cursor: 'pointer' }}>{medicine.TenThuoc}</td>
-                    <td onClick={() => handleViewDetail(medicine)} style={{ cursor: 'pointer' }}>{medicine.TenDVT || "N/A"}</td>
-                    <td onClick={() => handleViewDetail(medicine)} style={{ cursor: 'pointer' }}>{medicine.TenCachDung || "N/A"}</td>
-                    <td onClick={() => handleViewDetail(medicine)} style={{ cursor: 'pointer' }}>{medicine.SoLuongTon}</td>
-                    <td onClick={() => handleViewDetail(medicine)} style={{ cursor: 'pointer' }}>{formatCurrency(medicine.GiaBan)}</td>
-                    <td>
-                      <div className="action-buttons">
-                        <button
-                          className="btn-edit-small"
-                          onClick={() => handleOpenModal()}
-                        >
-                          Sửa
-                        </button>
-                        <button
-                          className="btn-delete-small"
-                          onClick={() => handleDelete(medicine)}
-                        >
-                          Xóa
-                        </button>
-                      </div>
+              </thead>
+              <tbody>
+                {medicines.length === 0 ? (
+                  <tr>
+                    <td colSpan="8" style={{ textAlign: "center" }}>
+                      Chưa có thuốc nào
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {/* SideSheet for View Details */}
-      <SideSheet isOpen={showSideSheet} onClose={handleCloseSideSheet}>
-        {viewingMedicine && (
-          <div className="medicine-detail-container">
-            <div className="medicine-detail-header">
-              <h3>Chi tiết thuốc</h3>
-              <button className="btn-close" onClick={handleCloseSideSheet}>
-                ×
-              </button>
-            </div>
-
-            <div className="medicine-detail-body">
-              <div className="detail-row">
-                <span className="detail-label">Mã thuốc:</span>
-                <span className="detail-value">{viewingMedicine.MaThuoc}</span>
-              </div>
-
-              <div className="detail-row">
-                <span className="detail-label">Tên thuốc:</span>
-                <span className="detail-value">{viewingMedicine.TenThuoc}</span>
-              </div>
-
-              <div className="detail-row">
-                <span className="detail-label">Đơn vị tính:</span>
-                <span className="detail-value">{viewingMedicine.TenDVT || "N/A"}</span>
-              </div>
-
-              <div className="detail-row">
-                <span className="detail-label">Cách dùng:</span>
-                <span className="detail-value">{viewingMedicine.TenCachDung || "N/A"}</span>
-              </div>
-
-              <div className="detail-row">
-                <span className="detail-label">Số lượng tồn:</span>
-                <span className="detail-value">{viewingMedicine.SoLuongTon}</span>
-              </div>
-
-              <div className="detail-row">
-                <span className="detail-label">Giá bán:</span>
-                <span className="detail-value">{formatCurrency(viewingMedicine.GiaBan)}</span>
-              </div>
-
-              {viewingMedicine.CongDung && (
-                <div className="detail-row full-width">
-                  <span className="detail-label">Công dụng:</span>
-                  <span className="detail-value">{viewingMedicine.CongDung}</span>
-                </div>
-              )}
-
-              {viewingMedicine.TacDungPhu && (
-                <div className="detail-row full-width">
-                  <span className="detail-label">Tác dụng phụ:</span>
-                  <span className="detail-value">{viewingMedicine.TacDungPhu}</span>
-                </div>
-              )}
-
-              <div className="detail-actions">
-                <button 
-                  className="btn-edit" 
-                  onClick={() => {
-                    handleCloseSideSheet();
-                    handleOpenModal();
-                  }}
-                >
-                  Chỉnh sửa
-                </button>
-                <button 
-                  className="btn-delete" 
-                  onClick={() => {
-                    handleCloseSideSheet();
-                    handleDelete(viewingMedicine);
-                  }}
-                >
-                  Xóa
-                </button>
-              </div>
-            </div>
+                ) : (
+                  medicines.map((medicine) => (
+                    <tr key={medicine.MaThuoc}>
+                      <td onClick={() => handleViewDetail(medicine)} style={{ cursor: 'pointer' }}>{medicine.MaThuoc}</td>
+                      <td onClick={() => handleViewDetail(medicine)} style={{ cursor: 'pointer' }}>{medicine.TenThuoc}</td>
+                      <td onClick={() => handleViewDetail(medicine)} style={{ cursor: 'pointer' }} title={medicine.CongDung || "N/A"}>{medicine.CongDung ? medicine.CongDung.substring(0, 30) + (medicine.CongDung.length > 30 ? "..." : "") : "N/A"}</td>
+                      <td onClick={() => handleViewDetail(medicine)} style={{ cursor: 'pointer' }}>{medicine.TenDVT || "N/A"}</td>
+                      <td onClick={() => handleViewDetail(medicine)} style={{ cursor: 'pointer' }}>{medicine.TenCachDung || "N/A"}</td>
+                      <td onClick={() => handleViewDetail(medicine)} style={{ cursor: 'pointer' }} title={medicine.TacDungPhu || "N/A"}>{medicine.TacDungPhu ? medicine.TacDungPhu.substring(0, 30) + (medicine.TacDungPhu.length > 30 ? "..." : "") : "N/A"}</td>
+                      <td onClick={() => handleViewDetail(medicine)} style={{ cursor: 'pointer' }}>{formatCurrency(medicine.GiaBan)}</td>
+                      <td>
+                        <div className="action-buttons">
+                          <PermissionGuard feature="medicine-edit" hide>
+                            <button
+                              className="btn-edit-small"
+                              onClick={() => handleOpenModal()}
+                              data-feature="medicine-edit"
+                            >
+                              Sửa
+                            </button>
+                          </PermissionGuard>
+                          <PermissionGuard feature="medicine-delete" hide>
+                            <button
+                              className="btn-delete-small"
+                              onClick={() => handleDelete(medicine)}
+                              data-feature="medicine-delete"
+                            >
+                              Xóa
+                            </button>
+                          </PermissionGuard>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
           </div>
         )}
-      </SideSheet>
 
-      <DeleteConfirmModal
-        isOpen={deleteModal.isOpen}
-        title={`Xóa thuốc "${deleteModal.medicine?.TenThuoc || ""}"`}
-        message="Hành động này không thể hoàn tác. Bạn có chắc chắn muốn xóa?"
-        onConfirm={handleDeleteConfirm}
-        onCancel={handleDeleteCancel}
-        isLoading={loading}
-      />
-    </div>
+        {/* SideSheet for View Details */}
+        <SideSheet isOpen={showSideSheet} onClose={handleCloseSideSheet}>
+          {viewingMedicine && (
+            <div className="medicine-detail-container">
+              <div className="medicine-detail-header">
+                <h3>Chi tiết thuốc</h3>
+                <button className="btn-close" onClick={handleCloseSideSheet}>
+                  ×
+                </button>
+              </div>
+
+              <div className="medicine-detail-body">
+                <div className="detail-row">
+                  <span className="detail-label">Mã thuốc:</span>
+                  <span className="detail-value">{viewingMedicine.MaThuoc}</span>
+                </div>
+
+                <div className="detail-row">
+                  <span className="detail-label">Tên thuốc:</span>
+                  <span className="detail-value">{viewingMedicine.TenThuoc}</span>
+                </div>
+
+                <div className="detail-row">
+                  <span className="detail-label">Đơn vị tính:</span>
+                  <span className="detail-value">{viewingMedicine.TenDVT || "N/A"}</span>
+                </div>
+
+                <div className="detail-row">
+                  <span className="detail-label">Cách dùng:</span>
+                  <span className="detail-value">{viewingMedicine.TenCachDung || "N/A"}</span>
+                </div>
+
+                <div className="detail-row">
+                  <span className="detail-label">Giá bán:</span>
+                  <span className="detail-value">{formatCurrency(viewingMedicine.GiaBan)}</span>
+                </div>
+
+                {viewingMedicine.CongDung && (
+                  <div className="detail-row full-width">
+                    <span className="detail-label">Công dụng:</span>
+                    <span className="detail-value">{viewingMedicine.CongDung}</span>
+                  </div>
+                )}
+
+                {viewingMedicine.TacDungPhu && (
+                  <div className="detail-row full-width">
+                    <span className="detail-label">Tác dụng phụ:</span>
+                    <span className="detail-value">{viewingMedicine.TacDungPhu}</span>
+                  </div>
+                )}
+
+                {viewingMedicine.LoThuoc && viewingMedicine.LoThuoc.length > 0 && (
+                  <div className="detail-row full-width batches-section">
+                    <span className="detail-label">📦 Danh sách các lô thuốc:</span>
+                    <div className="batches-container">
+                      {viewingMedicine.LoThuoc.map((batch) => (
+                        <div key={batch.MaLo} className="batch-card">
+                          <div className="batch-card-header">
+                            <span className="batch-code">Lô: <strong>{batch.MaLo}</strong></span>
+                          </div>
+                          <div className="batch-card-body">
+                            <div className="batch-info-item">
+                              <span className="batch-info-label">Số lượng tồn:</span>
+                              <span className="batch-info-value">{batch.SoLuongTon}</span>
+                            </div>
+                            <div className="batch-info-item">
+                              <span className="batch-info-label">Giá bán:</span>
+                              <span className="batch-info-value">{formatCurrency(batch.GiaBan)}</span>
+                            </div>
+                            <div className="batch-info-item">
+                              <span className="batch-info-label">Hạn sử dụng:</span>
+                              <span className="batch-info-value">{new Date(batch.HanSuDung).toLocaleDateString('vi-VN')}</span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {(!viewingMedicine.LoThuoc || viewingMedicine.LoThuoc.length === 0) && (
+                  <div className="detail-row full-width">
+                    <span className="detail-label">📦 Lô thuốc:</span>
+                    <span className="detail-value">Chưa có lô thuốc nào</span>
+                  </div>
+                )}
+
+                <div className="detail-actions">
+                  <PermissionGuard feature="medicine-edit" hide>
+                    <button 
+                      className="btn-edit" 
+                      onClick={() => {
+                        handleCloseSideSheet();
+                        handleOpenModal();
+                      }}
+                      data-feature="medicine-edit"
+                    >
+                      Chỉnh sửa
+                    </button>
+                  </PermissionGuard>
+                  <PermissionGuard feature="medicine-delete" hide>
+                    <button 
+                      className="btn-delete" 
+                      onClick={() => {
+                        handleCloseSideSheet();
+                        handleDelete(viewingMedicine);
+                      }}
+                      data-feature="medicine-delete"
+                    >
+                      Xóa
+                    </button>
+                  </PermissionGuard>
+                </div>
+              </div>
+            </div>
+          )}
+        </SideSheet>
+
+        <DeleteConfirmModal
+          isOpen={deleteModal.isOpen}
+          title={`Xóa thuốc "${deleteModal.medicine?.TenThuoc || ""}"`}
+          message="Hành động này không thể hoàn tác. Bạn có chắc chắn muốn xóa?"
+          onConfirm={handleDeleteConfirm}
+          onCancel={handleDeleteCancel}
+          isLoading={loading}
+        />
+      </div>
+    </PermissionGuard>
   );
 };
 

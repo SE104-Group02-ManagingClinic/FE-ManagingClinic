@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import "./ProfileCard.css";
+import { useAuth } from "../../contexts/AuthContext";
 
 const ProfileCard = ({ avatar, name, description }) => {
-  const [user, setUser] = useState(null);
+  const { user, loading } = useAuth();
 
   // Mapping nhóm từ MaNhom
   const groupMap = {
@@ -10,25 +11,24 @@ const ProfileCard = ({ avatar, name, description }) => {
     "GR002": "Bác sĩ",
     "GR003": "Y tá",
     "GR004": "Lễ tân",
+    "ADMIN": "Quản trị viên",
   };
 
-  useEffect(() => {
-    // Lấy thông tin user từ localStorage
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      try {
-        const userData = JSON.parse(storedUser);
-        console.log("📋 User từ localStorage:", userData);
-        setUser(userData);
-      } catch (error) {
-        console.error("Lỗi khi parse user từ localStorage:", error);
-      }
-    }
-  }, []);
+  // Loading state
+  if (loading) {
+    return (
+      <div className="profile-card">
+        <div className="profile-info">
+          <h3 className="profile-name">Đang tải...</h3>
+        </div>
+      </div>
+    );
+  }
 
+  // Null safety
   const displayName = user?.TenDangNhap || name || "UserName";
-  // Dùng MaNhom để mapping thay vì TenNhom (vì API trả về encoding sai)
-  const displayDesc = groupMap[user?.MaNhom] || description || "User Group";
+  // Ưu tiên TenNhom từ backend, nếu không có thì dùng mapping
+  const displayDesc = user?.TenNhom || groupMap[user?.MaNhom] || description || "User Group";
 
   return (
     <div className="profile-card">

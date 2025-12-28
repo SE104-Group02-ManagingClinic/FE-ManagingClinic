@@ -1,4 +1,4 @@
-// src/api/usageApi.js
+﻿// src/api/usageApi.js
 
 /**
  * Tạo cách dùng mới
@@ -17,7 +17,7 @@ export const createUsage = async (formData) => {
   const response = await fetch("/api/usage/createUsage", {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
+      "Content-Type": "application/json; charset=utf-8",
     },
     body: JSON.stringify(payload),
   });
@@ -83,7 +83,7 @@ export const updateUsage = async (maCachDung, formData) => {
   const response = await fetch(`/api/usage/updateUsage/${maCachDung}`, {
     method: "PUT",
     headers: {
-      "Content-Type": "application/json",
+      "Content-Type": "application/json; charset=utf-8",
     },
     body: JSON.stringify(payload),
   });

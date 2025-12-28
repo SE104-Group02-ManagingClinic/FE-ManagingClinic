@@ -1,4 +1,4 @@
-// src/api/medicalExamFormApi.js
+﻿// src/api/medicalExamFormApi.js
 
 /**
  * Tạo phiếu khám bệnh (PKB)
@@ -28,7 +28,7 @@ export const createMedicalExamForm = async (formData) => {
   const response = await fetch("/api/medicalExamForm/createMedicalExamForm", {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
+      "Content-Type": "application/json; charset=utf-8",
     },
     body: JSON.stringify(payload),
   });
@@ -78,7 +78,7 @@ export const updateMedicalExamForm = async (maPKB, formData) => {
   const response = await fetch(`/api/medicalExamForm/updateMedicalExamForm/${maPKB}`, {
     method: "PUT",
     headers: {
-      "Content-Type": "application/json",
+      "Content-Type": "application/json; charset=utf-8",
     },
     body: JSON.stringify(payload),
   });

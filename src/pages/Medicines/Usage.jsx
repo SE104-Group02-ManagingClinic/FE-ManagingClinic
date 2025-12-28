@@ -3,6 +3,7 @@ import { getAllUsages, createUsage, updateUsage, deleteUsage } from "../../api/u
 import { useBottomSheet } from "../../contexts/BottomSheetContext";
 import { useToast } from "../../contexts/ToastContext";
 import DeleteConfirmModal from "../../components/DeleteConfirmModal";
+import PermissionGuard from "../../components/PermissionGuard";
 
 const Usage = () => {
   const [usages, setUsages] = useState([]);
@@ -61,66 +62,83 @@ const Usage = () => {
   };
 
   return (
-    <div className="tab-content">
-      {error && <div className="alert alert-error">{error}</div>}
+    <PermissionGuard
+      feature="usage-list"
+      fallback={
+        <div className="tab-content">
+          <div className="alert alert-warning">
+            Bạn không có quyền xem danh sách cách dùng
+          </div>
+        </div>
+      }
+    >
+      <div className="tab-content" data-feature="usage-list">
+        {error && <div className="alert alert-error">{error}</div>}
 
-      {loading && !usages.length ? (
-        <div className="loading">Đang tải...</div>
-      ) : (
-        <div className="table-wrapper">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Mã cách dùng</th>
-                <th>Tên cách dùng</th>
-                <th>Thao tác</th>
-              </tr>
-            </thead>
-            <tbody>
-              {usages.length === 0 ? (
+        {loading && !usages.length ? (
+          <div className="loading">Đang tải...</div>
+        ) : (
+          <div className="table-wrapper">
+            <table className="data-table">
+              <thead>
                 <tr>
-                  <td colSpan="3" style={{ textAlign: "center" }}>
-                    Chưa có cách dùng nào
-                  </td>
+                  <th>Mã cách dùng</th>
+                  <th>Tên cách dùng</th>
+                  <th>Thao tác</th>
                 </tr>
-              ) : (
-                usages.map((usage) => (
-                  <tr key={usage.MaCachDung}>
-                    <td>{usage.MaCachDung}</td>
-                    <td>{usage.TenCachDung}</td>
-                    <td>
-                      <div className="action-buttons">
-                        <button
-                          className="btn-edit-small"
-                          onClick={() => handleEdit(usage)}
-                        >
-                          Sửa
-                        </button>
-                        <button
-                          className="btn-delete-small"
-                          onClick={() => handleDelete(usage)}
-                        >
-                          Xóa
-                        </button>
-                      </div>
+              </thead>
+              <tbody>
+                {usages.length === 0 ? (
+                  <tr>
+                    <td colSpan="3" style={{ textAlign: "center" }}>
+                      Chưa có cách dùng nào
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      )}
+                ) : (
+                  usages.map((usage) => (
+                    <tr key={usage.MaCachDung}>
+                      <td>{usage.MaCachDung}</td>
+                      <td>{usage.TenCachDung}</td>
+                      <td>
+                        <div className="action-buttons">
+                          <PermissionGuard feature="usage-edit" hide>
+                            <button
+                              className="btn-edit-small"
+                              onClick={() => handleEdit(usage)}
+                              data-feature="usage-edit"
+                            >
+                              Sửa
+                            </button>
+                          </PermissionGuard>
+                          <PermissionGuard feature="usage-delete" hide>
+                            <button
+                              className="btn-delete-small"
+                              onClick={() => handleDelete(usage)}
+                              data-feature="usage-delete"
+                            >
+                              Xóa
+                            </button>
+                          </PermissionGuard>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
 
-      <DeleteConfirmModal
-        isOpen={deleteModal.isOpen}
-        title={`Xóa cách dùng "${deleteModal.usage?.TenCachDung || ""}"`}
-        message="Hành động này không thể hoàn tác. Bạn có chắc chắn muốn xóa?"
-        onConfirm={handleDeleteConfirm}
-        onCancel={handleDeleteCancel}
-        isLoading={loading}
-      />
-    </div>
+        <DeleteConfirmModal
+          isOpen={deleteModal.isOpen}
+          title={`Xóa cách dùng "${deleteModal.usage?.TenCachDung || ""}"`}
+          message="Hành động này không thể hoàn tác. Bạn có chắc chắn muốn xóa?"
+          onConfirm={handleDeleteConfirm}
+          onCancel={handleDeleteCancel}
+          isLoading={loading}
+        />
+      </div>
+    </PermissionGuard>
   );
 };
 

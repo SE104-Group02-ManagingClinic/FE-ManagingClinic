@@ -3,10 +3,12 @@ import "./Login.css";
 import { loginUser } from "../../api/userApi";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../../contexts/ToastContext";
+import { useAuth } from "../../contexts/AuthContext";
 
 const Login = () => {
   const navigate = useNavigate();
   const { showSuccess, showError } = useToast();
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     TenDangNhap: "",
     MatKhau: "",
@@ -27,11 +29,35 @@ const Login = () => {
     setError("");
 
     try {
+      console.log('🔐 Đang đăng nhập...');
       const result = await loginUser(formData.TenDangNhap, formData.MatKhau);
-      showSuccess(`Chào ${result.TenDangNhap}! Đăng nhập thành công.`);
+      
+      // Debug: Kiểm tra cấu trúc result
+      console.log('📦 Login result:', result);
+      console.log('👤 User object:', result.user);
+      console.log('🔑 Token:', result.token ? 'Có' : 'Không có');
+      console.log('🔐 Permissions:', result.permissions?.length || 0);
+      
+      // Validate result
+      if (!result || !result.user) {
+        throw new Error('Response không hợp lệ từ server');
+      }
+      
+      // Hiển thị thông báo thành công
+      const username = result.user?.TenDangNhap || 'User';
+      showSuccess(`Chào ${username}! Đăng nhập thành công.`);
+      
+      // ⚠️ Cảnh báo nếu backend chưa cập nhật
+      if (!result.token) {
+        console.warn('⚠️ Backend chưa trả về token - đang dùng quyền mặc định');
+        setTimeout(() => {
+          alert('⚠️ LƯU Ý: Backend chưa cập nhật API đăng nhập.\nHệ thống đang dùng quyền mặc định.\n\nVui lòng yêu cầu Backend team cập nhật để trả về:\n{ token, user, permissions }');
+        }, 1000);
+      }
 
-      // Lưu thông tin vào localStorage
-      localStorage.setItem("user", JSON.stringify(result));
+      // Lưu vào AuthContext
+      console.log('💾 Lưu vào AuthContext...');
+      login(result);
 
       // Reset form
       setFormData({
@@ -39,11 +65,13 @@ const Login = () => {
         MatKhau: "",
       });
 
-      // Chuyển hướng đến trang chính sau 1 giây
+      // Chuyển hướng đến trang chính
+      console.log('🚀 Chuyển hướng đến /home');
       setTimeout(() => {
         navigate("/home");
       }, 500);
     } catch (error) {
+      console.error('❌ Login error:', error);
       showError(error.message || "Đăng nhập thất bại!");
       setError(error.message || "Đăng nhập thất bại!");
     } finally {

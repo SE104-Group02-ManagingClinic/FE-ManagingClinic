@@ -9,6 +9,7 @@ import { getUpcomingExamForms } from "../../api/medicalExamFormApi";
 import SideSheet from "../SideSheet/SideSheet";
 import ExamFormDetail from "../Examine/ExamFormDetail";
 import { useToast } from "../../contexts/ToastContext";
+import PermissionGuard from "../../components/PermissionGuard";
 
 const Home = () => {
   const { bottomSheetState, setBottomSheetState, refreshTriggers } = useBottomSheet();
@@ -77,8 +78,8 @@ const Home = () => {
         </div>
 
         <div className="Buttons">
-          <ButtonHome label="Phiếu khám bệnh mới" onClick={handleOpenExamine} />
-          <ButtonHome label="Hồ sơ bệnh nhân mới" onClick={handleOpenPatient} />
+          <ButtonHome label="Phiếu khám bệnh mới" onClick={handleOpenExamine} data-feature="examine.create" />
+          <ButtonHome label="Hồ sơ bệnh nhân mới" onClick={handleOpenPatient} data-feature="patient.create" />
         </div>
       </div>
 

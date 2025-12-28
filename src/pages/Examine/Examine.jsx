@@ -4,10 +4,18 @@ import PatientsList from "./PatientsList";
 import ExamFormsList from "./ExamFormsList";
 import Disease from "./Disease";
 import { useBottomSheet } from "../../contexts/BottomSheetContext";
+import PermissionGuard from "../../components/PermissionGuard";
+import { useAuth } from "../../contexts/AuthContext";
 
 const Examine = () => {
     const [activeTab, setActiveTab] = useState("patients");
     const { setBottomSheetState } = useBottomSheet();
+    const { checkFeature } = useAuth();
+
+    // Check which tabs user can view
+    const canViewPatients = checkFeature("patient-list");
+    const canViewExamForms = checkFeature("exam-form-list");
+    const canViewDiseases = checkFeature("disease-list");
 
     const handleOpenExamine = () => {
         setBottomSheetState(prev => ({...prev, examineExamine: true}));
@@ -30,10 +38,12 @@ const Examine = () => {
             case "patients":
                 return (
                     <>
-                        <button className="btn-add" onClick={handleOpenPatient}>
-                            + Thêm bệnh nhân
-                        </button>
-                        <button className="btn-search" onClick={handleOpenSearch}>
+                        <PermissionGuard feature="patient-create" hide>
+                            <button className="btn-add" onClick={handleOpenPatient} data-feature="patient-create">
+                                + Thêm bệnh nhân
+                            </button>
+                        </PermissionGuard>
+                        <button className="btn-search" onClick={handleOpenSearch} data-feature="patient-search">
                             🔍 Tìm kiếm
                         </button>
                         <PatientsList />
@@ -42,18 +52,22 @@ const Examine = () => {
             case "examForms":
                 return (
                     <>
-                        <button className="btn-add" onClick={handleOpenExamine}>
-                            + Thêm phiếu khám
-                        </button>
+                        <PermissionGuard feature="exam-form-create" hide>
+                            <button className="btn-add" onClick={handleOpenExamine} data-feature="exam-form-create">
+                                + Thêm phiếu khám
+                            </button>
+                        </PermissionGuard>
                         <ExamFormsList />
                     </>
                 );
             case "diseases":
                 return (
                     <>
-                        <button className="btn-add" onClick={handleOpenDisease}>
-                            + Thêm bệnh mới
-                        </button>
+                        <PermissionGuard feature="disease-create" hide>
+                            <button className="btn-add" onClick={handleOpenDisease} data-feature="disease-create">
+                                + Thêm bệnh mới
+                            </button>
+                        </PermissionGuard>
                         <Disease />
                     </>
                 );
@@ -70,24 +84,33 @@ const Examine = () => {
 
             {/* Tab Navigation */}
             <div className="tabs-navigation">
-                <button
-                    className={`tab-button ${activeTab === "patients" ? "active" : ""}`}
-                    onClick={() => setActiveTab("patients")}
-                >
-                    Bệnh nhân
-                </button>
-                <button
-                    className={`tab-button ${activeTab === "examForms" ? "active" : ""}`}
-                    onClick={() => setActiveTab("examForms")}
-                >
-                    Phiếu khám bệnh
-                </button>
-                <button
-                    className={`tab-button ${activeTab === "diseases" ? "active" : ""}`}
-                    onClick={() => setActiveTab("diseases")}
-                >
-                    Bệnh
-                </button>
+                {canViewPatients && (
+                    <button
+                        className={`tab-button ${activeTab === "patients" ? "active" : ""}`}
+                        onClick={() => setActiveTab("patients")}
+                        data-feature="patient-list"
+                    >
+                        Bệnh nhân
+                    </button>
+                )}
+                {canViewExamForms && (
+                    <button
+                        className={`tab-button ${activeTab === "examForms" ? "active" : ""}`}
+                        onClick={() => setActiveTab("examForms")}
+                        data-feature="exam-form-list"
+                    >
+                        Phiếu khám bệnh
+                    </button>
+                )}
+                {canViewDiseases && (
+                    <button
+                        className={`tab-button ${activeTab === "diseases" ? "active" : ""}`}
+                        onClick={() => setActiveTab("diseases")}
+                        data-feature="disease-list"
+                    >
+                        Bệnh
+                    </button>
+                )}
             </div>
 
             {/* Tab Content */}

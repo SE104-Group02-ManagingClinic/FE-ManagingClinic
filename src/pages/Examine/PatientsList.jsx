@@ -5,6 +5,7 @@ import SideSheet from "../SideSheet/SideSheet";
 import PatientDetail from "./PatientDetail";
 import { useBottomSheet } from "../../contexts/BottomSheetContext";
 import { useToast } from "../../contexts/ToastContext";
+import PermissionGuard from "../../components/PermissionGuard";
 
 const PatientsList = () => {
   const [patients, setPatients] = useState([]);

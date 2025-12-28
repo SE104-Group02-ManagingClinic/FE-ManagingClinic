@@ -4,14 +4,17 @@ import { useBottomSheet } from "../../contexts/BottomSheetContext";
 import MedicinesList from "./MedicinesList";
 import Unit from "./Unit";
 import Usage from "./Usage";
+import PermissionGuard from "../../components/PermissionGuard";
+import { useAuth } from "../../contexts/AuthContext";
 
 const Medicines = () => {
   const [activeTab, setActiveTab] = useState("medicines");
+  const { checkFeature } = useAuth();
   
   const { setBottomSheetState } = useBottomSheet();
   
-  const handleOpenMedicineForm = () => {
-    setBottomSheetState(prev => ({ ...prev, medicinesForm: true }));
+  const handleOpenMedicineImportForm = () => {
+    setBottomSheetState(prev => ({ ...prev, medicineImportForm: true }));
   };
 
   const handleOpenUnitForm = () => {
@@ -22,32 +25,54 @@ const Medicines = () => {
     setBottomSheetState(prev => ({ ...prev, usageForm: true }));
   };
 
+  // Kiểm tra quyền để hiển thị tab
+  const canViewUnits = checkFeature('unit-list');
+  const canViewUsages = checkFeature('usage-list');
+
   const renderTabContent = () => {
     switch (activeTab) {
       case "medicines":
         return (
           <>
-            <button className="btn-add" onClick={handleOpenMedicineForm}>
-              + Thêm thuốc mới
-            </button>
+            <PermissionGuard feature="medicine-import" hide>
+              <button 
+                className="btn-add" 
+                onClick={handleOpenMedicineImportForm} 
+                data-feature="medicine-import"
+              >
+                + Nhập thuốc
+              </button>
+            </PermissionGuard>
             <MedicinesList />
           </>
         );
       case "units":
         return (
           <>
-            <button className="btn-add" onClick={handleOpenUnitForm}>
-              + Thêm đơn vị tính mới
-            </button>
+            <PermissionGuard feature="unit-create" hide>
+              <button 
+                className="btn-add" 
+                onClick={handleOpenUnitForm} 
+                data-feature="unit-create"
+              >
+                + Thêm đơn vị tính mới
+              </button>
+            </PermissionGuard>
             <Unit />
           </>
         );
       case "usages":
         return (
           <>
-            <button className="btn-add" onClick={handleOpenUsageForm}>
-              + Thêm cách dùng mới
-            </button>
+            <PermissionGuard feature="usage-create" hide>
+              <button 
+                className="btn-add" 
+                onClick={handleOpenUsageForm} 
+                data-feature="usage-create"
+              >
+                + Thêm cách dùng mới
+              </button>
+            </PermissionGuard>
             <Usage />
           </>
         );
@@ -57,7 +82,7 @@ const Medicines = () => {
   };
 
   return (
-    <div className="medicines-container">
+    <div className="medicines-container" data-feature="medicines-page">
       <div className="medicines-header">
         <h2>Quản lý thuốc</h2>
       </div>
@@ -67,21 +92,32 @@ const Medicines = () => {
         <button
           className={`tab-button ${activeTab === "medicines" ? "active" : ""}`}
           onClick={() => setActiveTab("medicines")}
+          data-feature="medicine-list"
         >
           Thuốc
         </button>
-        <button
-          className={`tab-button ${activeTab === "units" ? "active" : ""}`}
-          onClick={() => setActiveTab("units")}
-        >
-          Đơn vị tính
-        </button>
-        <button
-          className={`tab-button ${activeTab === "usages" ? "active" : ""}`}
-          onClick={() => setActiveTab("usages")}
-        >
-          Cách dùng
-        </button>
+        
+        {/* Tab Đơn vị tính - chỉ hiển thị nếu có quyền */}
+        {canViewUnits && (
+          <button
+            className={`tab-button ${activeTab === "units" ? "active" : ""}`}
+            onClick={() => setActiveTab("units")}
+            data-feature="unit-list"
+          >
+            Đơn vị tính
+          </button>
+        )}
+        
+        {/* Tab Cách dùng - chỉ hiển thị nếu có quyền */}
+        {canViewUsages && (
+          <button
+            className={`tab-button ${activeTab === "usages" ? "active" : ""}`}
+            onClick={() => setActiveTab("usages")}
+            data-feature="usage-list"
+          >
+            Cách dùng
+          </button>
+        )}
       </div>
 
       {/* Tab Content */}

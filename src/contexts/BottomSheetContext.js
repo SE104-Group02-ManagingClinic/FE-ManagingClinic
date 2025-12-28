@@ -11,6 +11,7 @@ export const BottomSheetProvider = ({ children }) => {
     examinePatient: false,
     examineSearch: false,
     medicinesForm: false,
+    medicineImportForm: false,
     unitForm: false,
     usageForm: false,
     diseaseForm: false,

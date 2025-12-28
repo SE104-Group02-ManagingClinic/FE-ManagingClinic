@@ -1,4 +1,4 @@
-// src/api/patientApi.js
+﻿// src/api/patientApi.js
 
 const readResponseData = async (response) => {
   const contentType = response.headers?.get?.("content-type") || "";
@@ -32,7 +32,7 @@ export const createPatient = async (formData) => {
   const response = await fetch("/api/patient/createPatient", {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
+      "Content-Type": "application/json; charset=utf-8",
     },
     body: JSON.stringify(payload),
   });
@@ -114,7 +114,7 @@ export const updatePatient = async (MaBN, formData, signal = null) => {
   const fetchOptions = {
     method: "PUT",
     headers: {
-      "Content-Type": "application/json",
+      "Content-Type": "application/json; charset=utf-8",
     },
     body: JSON.stringify(payload),
   };
