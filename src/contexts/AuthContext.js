@@ -126,7 +126,8 @@ export const AuthProvider = ({ children }) => {
 
   // Lấy sidebar items mà user có quyền
   const getSidebarItems = () => {
-    return getAccessibleSidebarItems(permissions);
+    const userGroup = user?.MaNhom || null;
+    return getAccessibleSidebarItems(permissions, userGroup);
   };
 
   // Kiểm tra đã đăng nhập chưa

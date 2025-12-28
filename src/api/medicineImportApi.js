@@ -159,3 +159,38 @@ export const deleteMedicineImport = async (maPNT) => {
 
   return response.json();
 };
+
+/**
+ * Xóa phiếu nhập thuốc theo mã lô thuốc
+ * @param {string} maLo - Mã lô thuốc cần xóa
+ * @returns {Promise<object>} Kết quả xóa
+ */
+export const deleteMedicineImportByBatchId = async (maLo) => {
+  if (!maLo || maLo.trim() === "") {
+    throw new Error("Mã lô thuốc không được để trống");
+  }
+
+  const response = await fetch(`/api/medicineImport/deleteMedicineImportByBatchId/${maLo}`, {
+    method: "DELETE",
+    headers: {
+      "Accept": "application/json",
+    },
+  });
+
+  if (response.status === 404) {
+    const data = await response.json();
+    throw new Error(data.message || "Không tìm thấy lô thuốc");
+  }
+
+  if (response.status === 409) {
+    const data = await response.json();
+    throw new Error(data.message || "Không thể xóa vì lô thuốc đã được kê đơn");
+  }
+
+  if (!response.ok) {
+    const data = await response.json();
+    throw new Error(data.error || "Lỗi hệ thống");
+  }
+
+  return response.json();
+};

@@ -3,6 +3,7 @@ import BottomSheet from '../pages/BottomSheet/BottomSheet';
 import ExamineForm from '../pages/Examine/ExamineForm';
 import PatientForm from '../pages/Examine/PatientForm';
 import SearchPatient from '../pages/Examine/SearchPatient';
+import PatientReception from '../pages/Examine/PatientReception';
 import MedicineForm from '../pages/Medicines/MedicineForm';
 import MedicineImportForm from '../pages/Medicines/MedicineImportForm';
 import UnitForm from '../pages/Medicines/UnitForm';
@@ -22,7 +23,9 @@ const BottomSheetContainer = () => {
     editingUsage,
     setEditingUsage,
     editingDisease,
-    setEditingDisease
+    setEditingDisease,
+    editingMedicine,
+    setEditingMedicine
   } = useBottomSheet();
   const { showSuccess } = useToast();
 
@@ -44,15 +47,24 @@ const BottomSheetContainer = () => {
       {/* Home Page BottomSheets */}
       <BottomSheet 
         isOpen={bottomSheetState.homeExamine} 
-        onClose={() => handleClose('homeExamine')}
+        onClose={() => {
+          setBottomSheetState(prev => ({ ...prev, examinePatientData: null }));
+          handleClose('homeExamine');
+        }}
       >
         <ExamineForm 
+          initialPatient={bottomSheetState.examinePatientData}
           onSubmit={(result) => {
             showSuccess('Tạo phiếu khám thành công!');
             triggerRefresh('examForms');
+            triggerRefresh('examList');
+            setBottomSheetState(prev => ({ ...prev, examinePatientData: null }));
             handleClose('homeExamine');
           }}
-          onCancel={() => handleClose('homeExamine')}
+          onCancel={() => {
+            setBottomSheetState(prev => ({ ...prev, examinePatientData: null }));
+            handleClose('homeExamine');
+          }}
         />
       </BottomSheet>
 
@@ -67,6 +79,21 @@ const BottomSheetContainer = () => {
             handleClose('homePatient');
           }}
           onCancel={() => handleClose('homePatient')}
+        />
+      </BottomSheet>
+
+      {/* Tiếp nhận bệnh nhân (Reception) */}
+      <BottomSheet 
+        isOpen={bottomSheetState.homeReception} 
+        onClose={() => handleClose('homeReception')}
+      >
+        <PatientReception
+          onSuccess={(patient) => {
+            triggerRefresh('examList');
+            triggerRefresh('patients');
+            handleClose('homeReception');
+          }}
+          onCancel={() => handleClose('homeReception')}
         />
       </BottomSheet>
 
@@ -123,15 +150,23 @@ const BottomSheetContainer = () => {
 
       <BottomSheet 
         isOpen={bottomSheetState.medicinesForm} 
-        onClose={() => handleClose('medicinesForm')}
+        onClose={() => {
+          setEditingMedicine(null);
+          handleClose('medicinesForm');
+        }}
       >
         <MedicineForm 
+          medicine={editingMedicine}
           onSubmit={() => {
             showSuccess('Lưu thuốc thành công!');
+            setEditingMedicine(null);
             triggerRefresh('medicines');
             handleClose('medicinesForm');
           }}
-          onCancel={() => handleClose('medicinesForm')}
+          onCancel={() => {
+            setEditingMedicine(null);
+            handleClose('medicinesForm');
+          }}
         />
       </BottomSheet>
 

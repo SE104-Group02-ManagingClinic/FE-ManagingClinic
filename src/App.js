@@ -3,8 +3,10 @@ import Home from './pages/Home/Home';
 import Sidebar from './components/sidebar/Sidebar';
 import Examine from './pages/Examine/Examine';
 import Medicines from './pages/Medicines/Medicines';
+import Payment from './pages/Payment/Payment';
 import Reports from './pages/Reports/Reports';
 import Settings from './pages/Settings/Settings';
+import Admin from './pages/Admin/Admin';
 import ProfileCard from './components/profile/ProfileCard';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { BottomSheetProvider, useBottomSheet } from './contexts/BottomSheetContext';
@@ -61,6 +63,13 @@ function AppContent() {
                                     </ProtectedRoute>
                                 } />
                                 
+                                {/* Thanh toán */}
+                                <Route path="/payment" element={
+                                    <ProtectedRoute>
+                                        <Payment data-feature="payment" />
+                                    </ProtectedRoute>
+                                } />
+                                
                                 {/* Báo cáo - không cần check, dùng checkRouteAccess */}
                                 <Route path="/statistics" element={
                                     <ProtectedRoute>
@@ -72,6 +81,13 @@ function AppContent() {
                                 <Route path="/settings" element={
                                     <ProtectedRoute>
                                         <Settings data-feature="settings" />
+                                    </ProtectedRoute>
+                                } />
+                                
+                                {/* Quản trị hệ thống - chỉ dành cho Admin */}
+                                <Route path="/admin" element={
+                                    <ProtectedRoute>
+                                        <Admin data-feature="admin" />
                                     </ProtectedRoute>
                                 } />
                             </Routes>

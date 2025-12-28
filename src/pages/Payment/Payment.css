@@ -1,0 +1,480 @@
+.payment-container {
+  padding: 20px;
+  background: #f5f5f5;
+  min-height: 100vh;
+}
+
+/* Header */
+.payment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.payment-header h2 {
+  color: #212529;
+  margin: 0;
+}
+
+.payment-header .date-picker {
+  padding: 10px 14px;
+  border: 1px solid #ced4da;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.payment-header .date-picker:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+/* Stats */
+.payment-stats {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.payment-stats .stat-item {
+  flex: 1;
+  min-width: 120px;
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.payment-stats .stat-item.total {
+  border-left: 4px solid #007bff;
+}
+
+.payment-stats .stat-item.paid {
+  border-left: 4px solid #28a745;
+}
+
+.payment-stats .stat-item.unpaid {
+  border-left: 4px solid #ffc107;
+}
+
+.payment-stats .stat-value {
+  display: block;
+  font-size: 28px;
+  font-weight: 700;
+  color: #212529;
+}
+
+.payment-stats .stat-label {
+  font-size: 13px;
+  color: #6c757d;
+}
+
+/* Tabs */
+.payment-tabs {
+  margin-bottom: 16px;
+}
+
+.payment-tabs .tab-btn {
+  padding: 10px 20px;
+  border: none;
+  background: #e9ecef;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.payment-tabs .tab-btn.active {
+  background: #007bff;
+  color: white;
+}
+
+/* Exam Forms List */
+.exam-forms-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.exam-forms-list .loading-text,
+.exam-forms-list .error-text,
+.exam-forms-list .empty-text {
+  text-align: center;
+  padding: 40px;
+  color: #495057;
+}
+
+.exam-forms-list .error-text {
+  color: #dc3545;
+}
+
+/* Exam Form Card */
+.exam-form-card {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-left: 4px solid #ffc107;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.exam-form-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.exam-form-card.paid {
+  border-left-color: #28a745;
+  opacity: 0.8;
+}
+
+.exam-form-card .card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.exam-form-card .pkb-code {
+  font-weight: 600;
+  color: #0056b3;
+}
+
+.exam-form-card .status-badge {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.exam-form-card .status-badge.paid {
+  background: #d4edda;
+  color: #155724;
+}
+
+.exam-form-card .status-badge.unpaid {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.exam-form-card .card-body {
+  margin-bottom: 12px;
+}
+
+.exam-form-card .info-row {
+  display: flex;
+  margin-bottom: 4px;
+}
+
+.exam-form-card .info-row .label {
+  width: 100px;
+  font-size: 13px;
+  color: #6c757d;
+}
+
+.exam-form-card .info-row .value {
+  flex: 1;
+  font-size: 14px;
+  color: #212529;
+}
+
+.exam-form-card .card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12px;
+  border-top: 1px dashed #dee2e6;
+}
+
+.exam-form-card .total-amount {
+  font-weight: 600;
+  color: #28a745;
+}
+
+.exam-form-card .pay-btn {
+  padding: 8px 16px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.exam-form-card .pay-btn:hover {
+  background: #0056b3;
+}
+
+/* Payment Detail (Side Sheet) */
+.payment-detail {
+  padding: 20px;
+}
+
+.payment-detail h3 {
+  color: #212529;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #007bff;
+}
+
+.payment-detail .detail-section {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.payment-detail .detail-section h4 {
+  color: #495057;
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.payment-detail .detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.payment-detail .detail-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.payment-detail .detail-item .label {
+  font-size: 11px;
+  color: #6c757d;
+  margin-bottom: 2px;
+}
+
+.payment-detail .detail-item .value {
+  font-size: 14px;
+  color: #212529;
+  font-weight: 500;
+}
+
+.payment-detail .symptom-box {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed #dee2e6;
+}
+
+.payment-detail .symptom-box .label {
+  font-size: 11px;
+  color: #6c757d;
+}
+
+.payment-detail .symptom-box p {
+  margin: 4px 0 0 0;
+  font-size: 14px;
+  color: #212529;
+}
+
+.payment-detail .disease-list {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.payment-detail .disease-list li {
+  margin-bottom: 4px;
+  color: #495057;
+}
+
+/* Medicine Table */
+.payment-detail .medicine-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.payment-detail .medicine-table th,
+.payment-detail .medicine-table td {
+  padding: 8px 6px;
+  text-align: left;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.payment-detail .medicine-table th {
+  background: #e9ecef;
+  font-weight: 600;
+  color: #495057;
+}
+
+.payment-detail .medicine-table td:nth-child(2),
+.payment-detail .medicine-table td:nth-child(3),
+.payment-detail .medicine-table td:nth-child(4) {
+  text-align: right;
+}
+
+.payment-detail .medicine-table th:nth-child(2),
+.payment-detail .medicine-table th:nth-child(3),
+.payment-detail .medicine-table th:nth-child(4) {
+  text-align: right;
+}
+
+/* Medicine Option */
+.payment-detail .medicine-option .option-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.payment-detail .medicine-option .option-btn {
+  flex: 1;
+  padding: 12px;
+  border: 2px solid #dee2e6;
+  background: white;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.payment-detail .medicine-option .option-btn.active {
+  border-color: #28a745;
+  background: #d4edda;
+  color: #155724;
+}
+
+.payment-detail .medicine-option .option-btn.active.warning {
+  border-color: #dc3545;
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.payment-detail .medicine-option .warning-text {
+  margin-top: 12px;
+  padding: 10px;
+  background: #fff3cd;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #856404;
+}
+
+/* Paid Notice */
+.payment-detail .paid-notice {
+  text-align: center;
+  padding: 30px;
+  background: #d4edda;
+  border-radius: 12px;
+  margin-top: 20px;
+}
+
+.payment-detail .paid-notice .paid-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.payment-detail .paid-notice p {
+  margin: 0;
+  color: #155724;
+  font-size: 16px;
+}
+
+.payment-detail .paid-notice .invoice-code {
+  margin-top: 8px;
+  font-weight: 600;
+}
+
+/* Payment Summary */
+.payment-detail .payment-summary {
+  background: white;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+  border: 2px solid #007bff;
+}
+
+.payment-detail .summary-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  font-size: 14px;
+}
+
+.payment-detail .summary-row.total {
+  border-top: 2px solid #dee2e6;
+  margin-top: 8px;
+  padding-top: 12px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #28a745;
+}
+
+.payment-detail .summary-row .crossed {
+  text-decoration: line-through;
+  color: #dc3545;
+}
+
+/* Payment Actions */
+.payment-detail .payment-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.payment-detail .btn-cancel,
+.payment-detail .btn-pay {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.payment-detail .btn-cancel {
+  background: #6c757d;
+  color: white;
+}
+
+.payment-detail .btn-cancel:hover:not(:disabled) {
+  background: #545b62;
+}
+
+.payment-detail .btn-pay {
+  background: #28a745;
+  color: white;
+}
+
+.payment-detail .btn-pay:hover:not(:disabled) {
+  background: #1e7e34;
+}
+
+.payment-detail button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .payment-stats {
+    flex-direction: column;
+  }
+  
+  .payment-detail .detail-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .payment-detail .medicine-option .option-buttons {
+    flex-direction: column;
+  }
+  
+  .payment-detail .payment-actions {
+    flex-direction: column-reverse;
+  }
+  
+  .payment-detail .payment-actions button {
+    width: 100%;
+  }
+}

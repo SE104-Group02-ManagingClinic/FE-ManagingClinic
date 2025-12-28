@@ -642,6 +642,21 @@ const MedicineImportForm = ({ onSubmit, onCancel }) => {
             onChange={(e) => setImportData({ ...importData, HanSuDung: e.target.value })}
             required
           />
+          {!importData.HanSuDung && (
+            <div className="input-hint warning">
+              <span className="hint-label">⚠️ Vui lòng chọn hạn sử dụng</span>
+            </div>
+          )}
+          {importData.HanSuDung && new Date(importData.HanSuDung) < new Date() && (
+            <div className="input-hint error">
+              <span className="hint-label">❌ Hạn sử dụng không được quá hạn (trước ngày hôm nay)</span>
+            </div>
+          )}
+          {importData.HanSuDung && new Date(importData.HanSuDung) >= new Date() && new Date(importData.HanSuDung) - new Date() < 90 * 24 * 60 * 60 * 1000 && (
+            <div className="input-hint highlight">
+              <span className="hint-label">⏰ Lưu ý: Hạn sử dụng sắp hết (trong vòng 3 tháng)</span>
+            </div>
+          )}
         </div>
       </div>
     </div>

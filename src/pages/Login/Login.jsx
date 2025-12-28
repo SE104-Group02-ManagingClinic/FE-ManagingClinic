@@ -48,13 +48,6 @@ const Login = () => {
       showSuccess(`Chào ${username}! Đăng nhập thành công.`);
       
       // ⚠️ Cảnh báo nếu backend chưa cập nhật
-      if (!result.token) {
-        console.warn('⚠️ Backend chưa trả về token - đang dùng quyền mặc định');
-        setTimeout(() => {
-          alert('⚠️ LƯU Ý: Backend chưa cập nhật API đăng nhập.\nHệ thống đang dùng quyền mặc định.\n\nVui lòng yêu cầu Backend team cập nhật để trả về:\n{ token, user, permissions }');
-        }, 1000);
-      }
-
       // Lưu vào AuthContext
       console.log('💾 Lưu vào AuthContext...');
       login(result);
@@ -123,10 +116,6 @@ const Login = () => {
             {loading ? "Đang đăng nhập..." : "Đăng nhập"}
           </button>
         </form>
-
-        <div className="login-footer">
-          <p>Chưa có tài khoản? <a href="/register">Tạo tài khoản mới</a></p>
-        </div>
       </div>
     </div>
   );

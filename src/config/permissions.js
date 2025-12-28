@@ -44,6 +44,12 @@ export const ROUTE_PERMISSIONS = {
     public: false,
     description: 'Dành cho Nhân viên và Admin',
   },
+  '/payment': {
+    maChucNang: ['CN011', 'CN012'], // Lập hóa đơn, Quản lý hóa đơn
+    tenChucNang: 'Thanh toán',
+    public: false,
+    description: 'Dành cho Nhân viên thu ngân và Admin',
+  },
   '/statistics': {
     maChucNang: ['CN013', 'CN014'], // Báo cáo doanh thu, báo cáo sử dụng thuốc
     tenChucNang: 'Báo cáo thống kê',
@@ -55,6 +61,13 @@ export const ROUTE_PERMISSIONS = {
     tenChucNang: 'Cài đặt hệ thống',
     public: false,
     description: 'Dành cho Admin',
+  },
+  '/admin': {
+    maChucNang: ['CN001', 'CN002', 'CN003', 'CN018'], // Quản lý user, nhóm, phân quyền, tham số
+    tenChucNang: 'Quản trị hệ thống',
+    public: false,
+    description: 'Dành cho Admin - Quản lý người dùng, nhóm, phân quyền',
+    adminOnly: true, // Chỉ admin (GR001) mới được truy cập
   },
 };
 
@@ -84,7 +97,14 @@ export const SIDEBAR_ITEMS = [
     public: false,
   },
   {
-    icon: '📊',
+    icon: '�',
+    label: 'Thanh toán',
+    path: '/payment',
+    maChucNang: ['CN011', 'CN012'], // Lập hóa đơn, Quản lý hóa đơn
+    public: false,
+  },
+  {
+    icon: '�📊',
     label: 'Báo cáo',
     path: '/statistics',
     maChucNang: ['CN013', 'CN014'],
@@ -96,6 +116,14 @@ export const SIDEBAR_ITEMS = [
     path: '/settings',
     maChucNang: ['CN001', 'CN002', 'CN003'],
     public: false,
+  },
+  {
+    icon: '🛠️',
+    label: 'Quản trị',
+    path: '/admin',
+    maChucNang: ['CN001', 'CN002', 'CN003', 'CN018'],
+    public: false,
+    adminOnly: true, // Chỉ admin (GR001) mới hiển thị
   },
 ];
 
@@ -164,12 +192,20 @@ export const canAccessRoute = (path, userPermissions = []) => {
 /**
  * Lấy danh sách sidebar items mà user có quyền truy cập
  * @param {Array<string>} userPermissions - Danh sách mã chức năng user được phép
+ * @param {string} userGroup - Mã nhóm người dùng (để check adminOnly)
  * @returns {Array}
  */
-export const getAccessibleSidebarItems = (userPermissions = []) => {
+export const getAccessibleSidebarItems = (userPermissions = [], userGroup = null) => {
   console.log('🔍 Checking sidebar permissions. User has:', userPermissions);
+  console.log('👤 User group:', userGroup);
   
   return SIDEBAR_ITEMS.filter((item) => {
+    // Nếu item chỉ dành cho admin, kiểm tra user có phải admin không
+    if (item.adminOnly && userGroup !== 'GR001') {
+      console.log(`❌ ${item.label}: Admin only (user group: ${userGroup})`);
+      return false;
+    }
+    
     if (item.public) {
       console.log(`✅ ${item.label}: Public`);
       return true;

@@ -23,11 +23,57 @@
     }
         .home-title {
             color: #2c3e50;
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .home-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 90%;
             margin-top: 20px;
             margin-bottom: 10px;
-            font-size: 24px;
-            text-align: center;
+            flex-wrap: wrap;
+            gap: 12px;
         }
+
+        .home-header .date-filter {
+            display: flex;
+            align-items: center;
+        }
+
+        .home-header .date-picker {
+            padding: 8px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .home-header .date-picker:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+        }
+
+        .exam-list-summary {
+            width: 90%;
+            background: #e7f5ff;
+            border-radius: 8px;
+            padding: 10px 16px;
+            margin-bottom: 10px;
+        }
+
+        .exam-list-summary .summary-text {
+            font-size: 14px;
+            color: #0c5460;
+        }
+
+        .exam-list-summary .summary-text strong {
+            color: #007bff;
+        }
+
         .UpcommingAppointments {
             display: flex;
             border-radius: 12px;

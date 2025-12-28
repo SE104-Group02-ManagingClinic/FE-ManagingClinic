@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import "./Home.css";
 import ProfileCard from "../../components/profile/ProfileCard";
-import AppointmentCard from "../../components/cards/ExamineCard";
+import ExamListCard from "../../components/cards/ExamListCard";
 import Sidebar from "../../components/sidebar/Sidebar";
 import ButtonHome from "../../components/buttons/ButtonHome";
 import { useBottomSheet } from "../../contexts/BottomSheetContext";
-import { getUpcomingExamForms } from "../../api/medicalExamFormApi";
+import { getDailyExamList } from "../../api/listExamApi";
 import SideSheet from "../SideSheet/SideSheet";
 import ExamFormDetail from "../Examine/ExamFormDetail";
 import { useToast } from "../../contexts/ToastContext";
@@ -13,80 +13,116 @@ import PermissionGuard from "../../components/PermissionGuard";
 
 const Home = () => {
   const { bottomSheetState, setBottomSheetState, refreshTriggers } = useBottomSheet();
-  const [upcomingExams, setUpcomingExams] = useState([]);
+  const [examList, setExamList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [selectedExamForm, setSelectedExamForm] = useState(null);
+  const [selectedPatient, setSelectedPatient] = useState(null);
   const [sideSheetOpen, setSideSheetOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const { showError } = useToast();
 
   useEffect(() => {
-    fetchUpcomingExams();
-  }, [refreshTriggers.examForms]);
+    fetchDailyExamList();
+  }, [selectedDate, refreshTriggers.examForms, refreshTriggers.examList]);
 
-  const fetchUpcomingExams = async () => {
+  const fetchDailyExamList = async () => {
     try {
       setLoading(true);
-      const data = await getUpcomingExamForms();
-      setUpcomingExams(data);
+      const data = await getDailyExamList(selectedDate);
+      // API trả về { NgayKham, TongSoBenhNhan, DanhSachBenhNhan: [...] }
+      setExamList(data?.DanhSachBenhNhan || []);
       setError("");
     } catch (err) {
-      showError(err.message || "Lỗi khi tải danh sách phiếu khám sắp tới");
-      setError(err.message || "Lỗi khi tải danh sách phiếu khám sắp tới");
-      setUpcomingExams([]);
+      showError(err.message || "Lỗi khi tải danh sách khám bệnh");
+      setError(err.message || "Lỗi khi tải danh sách khám bệnh");
+      setExamList([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSelectExamForm = (examForm) => {
-    setSelectedExamForm(examForm);
-    setSideSheetOpen(true);
+  const handleSelectPatient = (patient) => {
+    setSelectedPatient(patient);
+    // Nếu đã có phiếu khám, mở chi tiết phiếu khám
+    // Nếu chưa có, mở form tạo phiếu khám với thông tin bệnh nhân
+    if (patient.MaPKB) {
+      setSideSheetOpen(true);
+    } else {
+      // Mở bottom sheet để tạo phiếu khám với thông tin bệnh nhân đã có
+      setBottomSheetState(prev => ({
+        ...prev, 
+        homeExamine: true,
+        examinePatientData: patient // Truyền thông tin bệnh nhân
+      }));
+    }
   };
 
   const handleExamFormUpdated = () => {
-    fetchUpcomingExams();
+    fetchDailyExamList();
     setSideSheetOpen(false);
+  };
+
+  const handleDateChange = (e) => {
+    setSelectedDate(e.target.value);
   };
 
   const handleOpenExamine = () => {
     setBottomSheetState(prev => ({...prev, homeExamine: true}));
   };
 
-  const handleOpenPatient = () => {
-    setBottomSheetState(prev => ({...prev, homePatient: true}));
+  const handleOpenReception = () => {
+    setBottomSheetState(prev => ({...prev, homeReception: true}));
   };
 
   return (
     <div className="home-container">
       <div className="MainScreen">
-        <h2 className="home-title">📅 Phiếu khám bệnh sắp tới</h2>
+        <div className="home-header">
+          <h2 className="home-title">📋 Danh sách khám bệnh</h2>
+          <div className="date-filter">
+            <input 
+              type="date" 
+              value={selectedDate} 
+              onChange={handleDateChange}
+              className="date-picker"
+            />
+          </div>
+        </div>
+        
+        <div className="exam-list-summary">
+          <span className="summary-text">
+            Ngày {new Date(selectedDate).toLocaleDateString('vi-VN')} - 
+            Tổng: <strong>{examList.length}</strong> bệnh nhân | 
+            Đã khám: <strong>{examList.filter(p => p.MaPKB).length}</strong> | 
+            Chờ khám: <strong>{examList.filter(p => !p.MaPKB).length}</strong>
+          </span>
+        </div>
         
         <div className="UpcommingAppointments">
           {loading && <p className="loading-text">Đang tải...</p>}
           {error && <p className="error-text">{error}</p>}
-          {!loading && upcomingExams.length === 0 && !error && (
-            <p className="empty-text">Không có phiếu khám nào sắp tới trong 7 ngày tới</p>
+          {!loading && examList.length === 0 && !error && (
+            <p className="empty-text">Không có bệnh nhân nào trong danh sách khám ngày {new Date(selectedDate).toLocaleDateString('vi-VN')}</p>
           )}
-          {upcomingExams.slice(0, 10).map((examForm) => (
-            <AppointmentCard
-              key={examForm.MaPKB}
-              examForm={examForm}
-              onClick={() => handleSelectExamForm(examForm)}
+          {examList.map((patient) => (
+            <ExamListCard
+              key={patient.MaBN}
+              patient={patient}
+              onClick={() => handleSelectPatient(patient)}
             />
           ))}
         </div>
 
         <div className="Buttons">
+          <ButtonHome label="Tiếp nhận bệnh nhân" onClick={handleOpenReception} data-feature="patient.reception" />
           <ButtonHome label="Phiếu khám bệnh mới" onClick={handleOpenExamine} data-feature="examine.create" />
-          <ButtonHome label="Hồ sơ bệnh nhân mới" onClick={handleOpenPatient} data-feature="patient.create" />
         </div>
       </div>
 
       <SideSheet isOpen={sideSheetOpen} onClose={() => setSideSheetOpen(false)}>
-        {selectedExamForm && (
+        {selectedPatient?.MaPKB && (
           <ExamFormDetail
-            maPKB={selectedExamForm.MaPKB}
+            maPKB={selectedPatient.MaPKB}
             onUpdate={handleExamFormUpdated}
             onDelete={handleExamFormUpdated}
             onClose={() => setSideSheetOpen(false)}
