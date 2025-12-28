@@ -93,6 +93,96 @@
     background: #c0392b;
 }
 
+/* Disease Search Container */
+.disease-search-container {
+  margin-bottom: 20px;
+  background: white;
+  padding: 16px;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.search-form {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.search-input-group {
+  flex: 1;
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.search-input-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #666;
+}
+
+.search-input {
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: border-color 0.3s;
+  font-family: inherit;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #e74c3c;
+  box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.1);
+}
+
+.btn-search {
+  padding: 10px 24px !important;
+  background: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: background 0.3s;
+  white-space: nowrap;
+  align-self: auto !important;
+}
+
+.btn-search:hover:not(:disabled) {
+  background: #c0392b;
+}
+
+.btn-search:disabled {
+  background: #bbb;
+  cursor: not-allowed;
+}
+
+.btn-clear {
+  padding: 10px 20px;
+  background: #95a5a6;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: background 0.3s;
+  white-space: nowrap;
+}
+
+.btn-clear:hover:not(:disabled) {
+  background: #7f8c8d;
+}
+
+.btn-clear:disabled {
+  background: #bbb;
+  cursor: not-allowed;
+}
+
 
 
 /* Table styling - Examine specific */

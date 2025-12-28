@@ -1,4 +1,4 @@
-// src/api/unitApi.js
+﻿// src/api/unitApi.js
 
 /**
  * Tạo đơn vị tính mới
@@ -17,7 +17,7 @@ export const createUnit = async (formData) => {
   const response = await fetch("/api/unit/createUnit", {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
+      "Content-Type": "application/json; charset=utf-8",
     },
     body: JSON.stringify(payload),
   });
@@ -83,7 +83,7 @@ export const updateUnit = async (maDVT, formData) => {
   const response = await fetch(`/api/unit/updateUnit/${maDVT}`, {
     method: "PUT",
     headers: {
-      "Content-Type": "application/json",
+      "Content-Type": "application/json; charset=utf-8",
     },
     body: JSON.stringify(payload),
   });

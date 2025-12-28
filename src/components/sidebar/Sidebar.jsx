@@ -1,15 +1,25 @@
 import React from "react";
 import "./Sidebar.css";
 import SidebarItem from "./SidebarItem";
+import { useAuth } from "../../contexts/AuthContext";
 
 const Sidebar = () => {
+  const { getSidebarItems } = useAuth();
+  
+  // Lấy danh sách menu items dựa trên quyền của user
+  const accessibleItems = getSidebarItems();
+
   return (
     <div className="sidebar">
-      <SidebarItem icon="🏠" label="Trang chủ" path="/home" className ="home"/>
-      <SidebarItem icon="🩺" label="Khám bệnh" path="/examine" className="examine"/>
-      <SidebarItem icon="💊" label="Quản lí thuốc" path="/medicines" className="medicines"/>
-      <SidebarItem icon="📊" label="Báo cáo" path="/statistics" className="statistics"/>
-      <SidebarItem icon="⚙️" label="Cài đặt" path="/settings" className="settings"/>
+      {accessibleItems.map((item) => (
+        <SidebarItem 
+          key={item.path}
+          icon={item.icon} 
+          label={item.label} 
+          path={item.path} 
+          className={item.path.replace('/', '')}
+        />
+      ))}
     </div>
   );
 };

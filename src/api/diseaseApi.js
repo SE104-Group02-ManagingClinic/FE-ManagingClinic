@@ -1,4 +1,4 @@
-// src/api/diseaseApi.js
+﻿// src/api/diseaseApi.js
 
 /**
  * Tạo bệnh mới
@@ -22,7 +22,7 @@ export const createDisease = async (formData) => {
   const response = await fetch("/api/disease/createBenh", {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
+      "Content-Type": "application/json; charset=utf-8",
     },
     body: JSON.stringify(payload),
   });
@@ -147,7 +147,7 @@ export const updateDisease = async (MaBenh, formData) => {
   const response = await fetch(`/api/disease/updateBenh/${MaBenh}`, {
     method: "PUT",
     headers: {
-      "Content-Type": "application/json",
+      "Content-Type": "application/json; charset=utf-8",
     },
     body: JSON.stringify(payload),
   });

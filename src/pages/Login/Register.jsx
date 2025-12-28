@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./Register.css";
 import { createAccount } from "../../api/userApi";
+import { getAllGroupUsers } from "../../api/groupUserApi";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../../contexts/ToastContext";
 
@@ -12,19 +13,45 @@ const Register = () => {
     TenDangNhap: "",
     MatKhau: "",
     MatKhauConfirm: "",
-    MaNhom: "GR001", // Mặc định là nhóm thường
+    MaNhom: "", // Sẽ được set mặc định sau khi load groups
   });
 
   const [loading, setLoading] = useState(false);
+  const [loadingGroups, setLoadingGroups] = useState(true);
   const [error, setError] = useState("");
+  const [groups, setGroups] = useState([]);
 
-  // Nhóm người dùng có sẵn
-  const groups = [
-    { value: "GR001", label: "Nhóm Quản trị" },
-    { value: "GR002", label: "Bác sĩ" },
-    { value: "GR003", label: "Y tá" },
-    { value: "GR004", label: "Lễ tân" },
-  ];
+  // Fetch danh sách nhóm người dùng từ database
+  useEffect(() => {
+    const fetchGroups = async () => {
+      try {
+        setLoadingGroups(true);
+        const groupsData = await getAllGroupUsers();
+        
+        // Xử lý response - có thể là array hoặc object chứa array
+        const groupsList = Array.isArray(groupsData) ? groupsData : [];
+        
+        if (groupsList.length > 0) {
+          setGroups(groupsList);
+          // Set giá trị mặc định là nhóm đầu tiên
+          setFormData((prev) => ({
+            ...prev,
+            MaNhom: groupsList[0].MaNhom,
+          }));
+        } else {
+          setError("Không tìm thấy nhóm người dùng trong hệ thống");
+        }
+      } catch (err) {
+        console.error("Lỗi khi lấy danh sách nhóm người dùng:", err);
+        showError("Không thể tải danh sách nhóm người dùng");
+        setError("Không thể tải danh sách nhóm người dùng");
+      } finally {
+        setLoadingGroups(false);
+      }
+    };
+
+    fetchGroups();
+  }, [showError]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -144,18 +171,26 @@ const Register = () => {
 
           <div className="form-group">
             <label>Chọn nhóm người dùng</label>
-            <select
-              name="MaNhom"
-              value={formData.MaNhom}
-              onChange={handleChange}
-              disabled={loading}
-            >
-              {groups.map((group) => (
-                <option key={group.value} value={group.value}>
-                  {group.label}
-                </option>
-              ))}
-            </select>
+            {loadingGroups ? (
+              <div className="select-loading">Đang tải danh sách nhóm...</div>
+            ) : groups.length > 0 ? (
+              <select
+                name="MaNhom"
+                value={formData.MaNhom}
+                onChange={handleChange}
+                disabled={loading}
+              >
+                {groups.map((group) => (
+                  <option key={group.MaNhom} value={group.MaNhom}>
+                    {group.TenNhom}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <div className="select-error">
+                Không có nhóm người dùng nào trong hệ thống
+              </div>
+            )}
           </div>
 
           <button

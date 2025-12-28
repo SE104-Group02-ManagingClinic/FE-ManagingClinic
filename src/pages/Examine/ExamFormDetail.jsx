@@ -3,6 +3,8 @@ import "./ExamFormDetail.css";
 import { getExamFormById, updateMedicalExamForm, deleteMedicalExamForm } from "../../api/medicalExamFormApi";
 import { getAllDiseases } from "../../api/diseaseApi";
 import { getAllMedicines } from "../../api/medicineApi";
+import { createInvoice, getInvoicesByDate, updateInvoice, deleteInvoice } from "../../api/invoiceApi";
+import { getThamSo } from "../../api/argumentApi";
 import { useToast } from "../../contexts/ToastContext";
 import DeleteConfirmModal from "../../components/DeleteConfirmModal";
 
@@ -13,6 +15,13 @@ const ExamFormDetail = ({ maPKB, onUpdate, onDelete, onClose }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
   const { showSuccess, showError } = useToast();
+
+  // Invoice state
+  const [invoice, setInvoice] = useState(null);
+  const [invoiceLoading, setInvoiceLoading] = useState(false);
+  const [tienKham, setTienKham] = useState(0);
+  const [showInvoiceModal, setShowInvoiceModal] = useState(false);
+  const [deleteInvoiceModal, setDeleteInvoiceModal] = useState(false);
 
   // Edit mode state
   const [editData, setEditData] = useState({
@@ -28,7 +37,7 @@ const ExamFormDetail = ({ maPKB, onUpdate, onDelete, onClose }) => {
   const [medicines, setMedicines] = useState([]);
   const [medicineRows, setMedicineRows] = useState([]);
 
-  // Load exam form details
+  // Load exam form details and invoice
   useEffect(() => {
     const fetchExamForm = async () => {
       try {
@@ -47,11 +56,50 @@ const ExamFormDetail = ({ maPKB, onUpdate, onDelete, onClose }) => {
         });
         setMedicineRows(data.CT_Thuoc || []);
         setError("");
+
+        // Load invoice for this exam form
+        await fetchInvoice(data.NgayKham);
+        
+        // Load TienKham from system parameters
+        try {
+          const thamSo = await getThamSo();
+          setTienKham(thamSo.TienKham || 0);
+        } catch (err) {
+          console.log("Không thể tải tiền khám từ hệ thống");
+        }
       } catch (err) {
         showError(err.message || "Lỗi khi tải thông tin phiếu khám");
         setError(err.message || "Lỗi khi tải thông tin phiếu khám");
       } finally {
         setLoading(false);
+      }
+    };
+
+    // Fetch invoice for this exam form
+    const fetchInvoice = async (ngayKham) => {
+      try {
+        // Try multiple dates to find the invoice
+        const datesToCheck = [
+          ngayKham,
+          new Date().toISOString().split('T')[0],
+        ];
+        
+        for (const date of datesToCheck) {
+          if (!date) continue;
+          try {
+            const invoices = await getInvoicesByDate(date);
+            const foundInvoice = invoices.find(inv => inv.MaPKB === maPKB);
+            if (foundInvoice) {
+              setInvoice(foundInvoice);
+              return;
+            }
+          } catch (e) {
+            // Continue checking other dates
+          }
+        }
+        setInvoice(null);
+      } catch (err) {
+        setInvoice(null);
       }
     };
 
@@ -213,6 +261,103 @@ const ExamFormDetail = ({ maPKB, onUpdate, onDelete, onClose }) => {
 
   const handleDeleteCancel = () => {
     setDeleteModal(false);
+  };
+
+  // ========== INVOICE FUNCTIONS ==========
+  
+  // Create invoice (payment)
+  const handleCreateInvoice = async () => {
+    try {
+      setInvoiceLoading(true);
+      
+      const today = new Date().toISOString().split('T')[0];
+      const tienThuoc = examForm.TongTienThuoc || 0;
+      
+      const invoiceData = {
+        MaPKB: maPKB,
+        NgayThanhToan: today,
+        TienKham: tienKham,
+        TienThuoc: tienThuoc,
+      };
+      
+      const result = await createInvoice(invoiceData);
+      showSuccess(`Thanh toán thành công! Mã hóa đơn: ${result.MaHD}, Tổng tiền: ${formatCurrency(result.TongTien)}`);
+      
+      // Reload invoice
+      const invoices = await getInvoicesByDate(today);
+      const foundInvoice = invoices.find(inv => inv.MaPKB === maPKB);
+      if (foundInvoice) {
+        setInvoice(foundInvoice);
+      }
+      
+      setShowInvoiceModal(false);
+    } catch (err) {
+      showError(err.message || "Lỗi khi tạo hóa đơn thanh toán");
+    } finally {
+      setInvoiceLoading(false);
+    }
+  };
+
+  // Update invoice
+  const handleUpdateInvoice = async () => {
+    if (!invoice) return;
+    
+    try {
+      setInvoiceLoading(true);
+      
+      const tienThuoc = examForm.TongTienThuoc || 0;
+      
+      const invoiceData = {
+        TienKham: tienKham,
+        TienThuoc: tienThuoc,
+      };
+      
+      const result = await updateInvoice(invoice.MaHD, invoiceData);
+      showSuccess(`Cập nhật hóa đơn thành công! Tổng tiền: ${formatCurrency(result.result.TongTien)}`);
+      
+      // Update local invoice state
+      setInvoice({
+        ...invoice,
+        TienKham: result.result.TienKham,
+        TienThuoc: result.result.TienThuoc,
+        TongTien: result.result.TongTien,
+      });
+    } catch (err) {
+      showError(err.message || "Lỗi khi cập nhật hóa đơn");
+    } finally {
+      setInvoiceLoading(false);
+    }
+  };
+
+  // Delete invoice
+  const handleDeleteInvoice = async () => {
+    setDeleteInvoiceModal(true);
+  };
+
+  const handleDeleteInvoiceConfirm = async () => {
+    if (!invoice) return;
+    
+    try {
+      setInvoiceLoading(true);
+      await deleteInvoice(invoice.MaHD);
+      showSuccess("Đã xóa hóa đơn thanh toán thành công!");
+      setInvoice(null);
+      setDeleteInvoiceModal(false);
+    } catch (err) {
+      showError(err.message || "Lỗi khi xóa hóa đơn");
+    } finally {
+      setInvoiceLoading(false);
+    }
+  };
+
+  const handleDeleteInvoiceCancel = () => {
+    setDeleteInvoiceModal(false);
+  };
+
+  // Calculate total payment
+  const calculateTotalPayment = () => {
+    const tienThuoc = examForm?.TongTienThuoc || 0;
+    return tienKham + tienThuoc;
   };
 
   // Format currency
@@ -468,7 +613,135 @@ const ExamFormDetail = ({ maPKB, onUpdate, onDelete, onClose }) => {
             {formatCurrency(isEditing ? editData.TongTienThuoc : examForm.TongTienThuoc)}
           </span>
         </div>
+
+        {/* Invoice/Payment Section */}
+        <div className="detail-section invoice-section">
+          <div className="section-header">
+            <h3>💳 Thanh toán</h3>
+            {invoice && !isEditing && (
+              <div className="invoice-actions">
+                <button 
+                  className="btn-update-invoice" 
+                  onClick={handleUpdateInvoice}
+                  disabled={invoiceLoading}
+                >
+                  Cập nhật
+                </button>
+                <button 
+                  className="btn-delete-invoice" 
+                  onClick={handleDeleteInvoice}
+                  disabled={invoiceLoading}
+                >
+                  Xóa hóa đơn
+                </button>
+              </div>
+            )}
+          </div>
+
+          {invoice ? (
+            // Display existing invoice
+            <div className="invoice-info">
+              <div className="invoice-badge paid">
+                <span className="badge-icon">✓</span>
+                Đã thanh toán
+              </div>
+              <div className="invoice-details">
+                <div className="invoice-row">
+                  <span className="invoice-label">Mã hóa đơn:</span>
+                  <span className="invoice-value">{invoice.MaHD}</span>
+                </div>
+                <div className="invoice-row">
+                  <span className="invoice-label">Ngày thanh toán:</span>
+                  <span className="invoice-value">{formatDate(invoice.NgayThanhToan)}</span>
+                </div>
+                <div className="invoice-row">
+                  <span className="invoice-label">Tiền khám:</span>
+                  <span className="invoice-value">{formatCurrency(invoice.TienKham)}</span>
+                </div>
+                <div className="invoice-row">
+                  <span className="invoice-label">Tiền thuốc:</span>
+                  <span className="invoice-value">{formatCurrency(invoice.TienThuoc)}</span>
+                </div>
+                <div className="invoice-row total">
+                  <span className="invoice-label">Tổng tiền:</span>
+                  <span className="invoice-value total-value">{formatCurrency(invoice.TongTien)}</span>
+                </div>
+              </div>
+            </div>
+          ) : (
+            // Show payment button if not paid
+            <div className="invoice-unpaid">
+              <div className="invoice-badge unpaid">
+                <span className="badge-icon">⏳</span>
+                Chưa thanh toán
+              </div>
+              <div className="payment-preview">
+                <div className="payment-row">
+                  <span>Tiền khám:</span>
+                  <span>{formatCurrency(tienKham)}</span>
+                </div>
+                <div className="payment-row">
+                  <span>Tiền thuốc:</span>
+                  <span>{formatCurrency(examForm.TongTienThuoc || 0)}</span>
+                </div>
+                <div className="payment-row total">
+                  <span>Tổng cộng:</span>
+                  <span className="total-value">{formatCurrency(calculateTotalPayment())}</span>
+                </div>
+              </div>
+              <button 
+                className="btn-payment" 
+                onClick={() => setShowInvoiceModal(true)}
+                disabled={isEditing || invoiceLoading}
+              >
+                {invoiceLoading ? "Đang xử lý..." : "💳 Thanh toán ngay"}
+              </button>
+            </div>
+          )}
+        </div>
       </div>
+
+      {/* Payment Confirmation Modal */}
+      {showInvoiceModal && (
+        <div className="modal-overlay">
+          <div className="modal-content invoice-modal">
+            <h3>Xác nhận thanh toán</h3>
+            <div className="modal-body">
+              <p>Bạn đang tạo hóa đơn thanh toán cho phiếu khám <strong>{maPKB}</strong></p>
+              <div className="payment-summary">
+                <div className="summary-row">
+                  <span>Tiền khám:</span>
+                  <span>{formatCurrency(tienKham)}</span>
+                </div>
+                <div className="summary-row">
+                  <span>Tiền thuốc:</span>
+                  <span>{formatCurrency(examForm.TongTienThuoc || 0)}</span>
+                </div>
+                <div className="summary-row total">
+                  <span>Tổng thanh toán:</span>
+                  <span className="total-value">{formatCurrency(calculateTotalPayment())}</span>
+                </div>
+              </div>
+            </div>
+            <div className="modal-actions">
+              <button 
+                className="btn-confirm-payment" 
+                onClick={handleCreateInvoice}
+                disabled={invoiceLoading}
+              >
+                {invoiceLoading ? "Đang xử lý..." : "Xác nhận thanh toán"}
+              </button>
+              <button 
+                className="btn-cancel-modal" 
+                onClick={() => setShowInvoiceModal(false)}
+                disabled={invoiceLoading}
+              >
+                Hủy
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <DeleteConfirmModal
         isOpen={deleteModal}
@@ -477,6 +750,15 @@ const ExamFormDetail = ({ maPKB, onUpdate, onDelete, onClose }) => {
         onConfirm={handleDeleteConfirm}
         onCancel={handleDeleteCancel}
         isLoading={loading}
+      />
+
+      <DeleteConfirmModal
+        isOpen={deleteInvoiceModal}
+        title={`Xóa hóa đơn #${invoice?.MaHD}`}
+        message="Bạn có chắc chắn muốn xóa hóa đơn thanh toán này?"
+        onConfirm={handleDeleteInvoiceConfirm}
+        onCancel={handleDeleteInvoiceCancel}
+        isLoading={invoiceLoading}
       />
     </div>
   );

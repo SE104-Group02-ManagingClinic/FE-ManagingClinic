@@ -1,0 +1,731 @@
+/* MedicineImportForm.css */
+
+.medicine-import-form-container {
+  padding: 0;
+  background: #ffffff;
+  color: #333;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+}
+
+.medicine-import-form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 2px solid #e0e0e0;
+  background: #ffffff;
+  flex-shrink: 0;
+}
+
+.medicine-import-form-header h3 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 22px;
+}
+
+/* Progress Steps */
+.progress-steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 24px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e0e0e0;
+  flex-shrink: 0;
+}
+
+.progress-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  opacity: 0.5;
+  transition: all 0.3s ease;
+}
+
+.progress-step.active {
+  opacity: 1;
+}
+
+.progress-step.completed {
+  opacity: 1;
+}
+
+.progress-step.completed .step-number {
+  background: #27ae60;
+  color: white;
+}
+
+.step-number {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #e0e0e0;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.progress-step.active .step-number {
+  background: #3498db;
+  color: white;
+}
+
+.step-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: #555;
+}
+
+.progress-step.active .step-text {
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.progress-line {
+  width: 60px;
+  height: 2px;
+  background: #e0e0e0;
+  margin: 0 12px;
+}
+
+.medicine-import-form-body {
+  flex: 1;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+/* Import Step */
+.import-step {
+  padding: 24px;
+  flex: 1;
+}
+
+.step-header {
+  margin-bottom: 20px;
+}
+
+.step-header h4 {
+  margin: 0 0 8px 0;
+  color: #2c3e50;
+  font-size: 18px;
+}
+
+.step-description {
+  margin: 0;
+  color: #666;
+  font-size: 14px;
+}
+
+/* Medicine Type Selection */
+.medicine-type-selection {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.type-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 24px 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.type-btn:hover {
+  border-color: #3498db;
+  background: #f8f9fa;
+}
+
+.type-btn.selected {
+  border-color: #3498db;
+  background: #e8f4fc;
+}
+
+.type-icon {
+  font-size: 32px;
+}
+
+.type-label {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.type-desc {
+  font-size: 12px;
+  color: #666;
+  text-align: center;
+}
+
+/* Existing Medicine Form */
+.existing-medicine-form,
+.new-medicine-form,
+.import-form {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  margin-top: 16px;
+}
+
+/* Medicine Preview */
+.medicine-preview {
+  margin-top: 20px;
+  padding: 16px;
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.medicine-preview h5 {
+  margin: 0 0 16px 0;
+  color: #2c3e50;
+  font-size: 15px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.preview-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.preview-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.preview-label {
+  font-size: 12px;
+  color: #666;
+  font-weight: 500;
+}
+
+.preview-value {
+  font-size: 14px;
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+/* Selected Medicine Info */
+.selected-medicine-info {
+  background: #e8f4fc;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.selected-medicine-info .info-label {
+  font-size: 14px;
+  color: #666;
+}
+
+.selected-medicine-info .info-value {
+  font-size: 14px;
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+/* Confirmation Container */
+.confirmation-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.confirmation-section {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.confirmation-section h5 {
+  margin: 0 0 16px 0;
+  color: #2c3e50;
+  font-size: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.confirmation-section.prediction {
+  background: #f0fff4;
+  border-color: #27ae60;
+}
+
+.confirmation-section.prediction h5 {
+  color: #27ae60;
+  border-color: rgba(39, 174, 96, 0.3);
+}
+
+.confirmation-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.confirm-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.confirm-item.total {
+  grid-column: 1 / -1;
+  border-top: 1px solid #e0e0e0;
+  margin-top: 8px;
+  padding-top: 16px;
+}
+
+.confirm-label {
+  font-size: 14px;
+  color: #666;
+}
+
+.confirm-value {
+  font-size: 14px;
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.confirm-value.highlight-new {
+  color: #27ae60;
+  background: #e8f5e9;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.confirm-value.highlight-existing {
+  color: #3498db;
+  background: #e8f4fc;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.confirm-value.highlight-qty {
+  color: #e67e22;
+  font-size: 16px;
+}
+
+.confirm-value.highlight-price {
+  color: #27ae60;
+}
+
+.confirm-value.highlight-sale-price {
+  color: #3498db;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.confirm-value.highlight-total {
+  color: #c0392b;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.confirm-value.highlight-new-stock {
+  color: #27ae60;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+/* Form Elements */
+.medicine-import-form-container .form-group {
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.medicine-import-form-container .form-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #555;
+  font-size: 14px;
+}
+
+.medicine-import-form-container .form-group input,
+.medicine-import-form-container .form-group textarea,
+.medicine-import-form-container .form-group select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: inherit;
+  background: #ffffff;
+  color: #333;
+  transition: border-color 0.3s;
+  box-sizing: border-box;
+}
+
+.medicine-import-form-container .form-group select {
+  cursor: pointer;
+}
+
+.medicine-import-form-container .form-group textarea {
+  resize: none;
+  overflow-y: auto;
+  max-height: 100px;
+}
+
+.medicine-import-form-container .form-group input::placeholder,
+.medicine-import-form-container .form-group textarea::placeholder {
+  color: #999;
+}
+
+.medicine-import-form-container .form-group input:focus,
+.medicine-import-form-container .form-group textarea:focus,
+.medicine-import-form-container .form-group select:focus {
+  outline: none;
+  border-color: #3498db;
+}
+
+/* Input hints - for tỉ lệ and giá bán dự kiến */
+.input-hint {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  background: #f8f9fa;
+  border: 1px solid #e0e0e0;
+}
+
+.input-hint.highlight {
+  background: #e8f4fc;
+  border-color: #3498db;
+}
+
+.input-hint.warning {
+  background: #fff3cd;
+  border-color: #ffc107;
+}
+
+.input-hint .hint-label {
+  color: #666;
+  font-weight: 500;
+}
+
+.input-hint .hint-value {
+  color: #2c3e50;
+  font-weight: 700;
+}
+
+.input-hint.highlight .hint-value {
+  color: #3498db;
+}
+
+.input-hint.warning .hint-label {
+  color: #856404;
+}
+
+.medicine-import-form-container .form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* Form Actions */
+.medicine-import-form-container .form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px;
+  border-top: 1px solid #e0e0e0;
+  background: #fff;
+  flex-shrink: 0;
+}
+
+.btn-prev {
+  padding: 10px 20px;
+  background: #f8f9fa;
+  color: #555;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.3s;
+}
+
+.btn-prev:hover {
+  background: #e9ecef;
+}
+
+.btn-next {
+  padding: 10px 24px;
+  background: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: background 0.3s;
+}
+
+.btn-next:hover {
+  background: #2980b9;
+}
+
+.btn-confirm {
+  padding: 10px 24px;
+  background: #27ae60;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: background 0.3s;
+}
+
+.btn-confirm:hover {
+  background: #229954;
+}
+
+.btn-confirm:disabled {
+  background: #95a5a6;
+  cursor: not-allowed;
+}
+
+.medicine-import-form-container .btn-cancel {
+  padding: 10px 24px;
+  background: #95a5a6;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: background 0.3s;
+}
+
+.medicine-import-form-container .btn-cancel:hover {
+  background: #7f8c8d;
+}
+
+/* Alert */
+.medicine-import-form-container .alert {
+  padding: 12px 16px;
+  border-radius: 4px;
+  margin: 0 24px 16px 24px;
+  font-size: 14px;
+}
+
+.medicine-import-form-container .alert-error {
+  background: #ffe0e0;
+  border: 1px solid #ffb3b3;
+  color: #c33;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .medicine-type-selection {
+    grid-template-columns: 1fr;
+  }
+
+  .preview-grid,
+  .confirmation-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .medicine-import-form-container .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .progress-steps {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .progress-line {
+    width: 30px;
+  }
+
+  .step-text {
+    display: none;
+  }
+
+  .medicine-import-form-container .form-actions {
+    flex-direction: column;
+  }
+
+  .medicine-import-form-container .form-actions button {
+    width: 100%;
+  }
+
+  .search-input-wrapper {
+    flex-direction: column;
+  }
+
+  .batches-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Search input wrapper styles */
+.search-input-wrapper {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.search-input-wrapper input {
+  flex: 1;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.btn-search-medicine,
+.btn-clear-search {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.btn-search-medicine {
+  background: #3498db;
+  color: white;
+}
+
+.btn-search-medicine:hover:not(:disabled) {
+  background: #2980b9;
+}
+
+.btn-search-medicine:disabled {
+  background: #bdc3c7;
+  cursor: not-allowed;
+}
+
+.btn-clear-search {
+  background: #e0e0e0;
+  color: #333;
+}
+
+.btn-clear-search:hover:not(:disabled) {
+  background: #d0d0d0;
+}
+
+/* No results section */
+.no-results-section {
+  margin-top: 20px;
+  padding: 20px;
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 6px;
+}
+
+.no-results-message {
+  text-align: center;
+}
+
+.no-results-message .message-text {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  color: #333;
+}
+
+.no-results-message .message-hint {
+  margin: 0 0 16px 0;
+  font-size: 14px;
+  color: #666;
+}
+
+.btn-create-new-medicine {
+  padding: 10px 20px;
+  background: #27ae60;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-create-new-medicine:hover {
+  background: #229954;
+}
+
+/* Search results section */
+.search-results-section {
+  margin-top: 20px;
+}
+
+.search-results-section .form-group {
+  margin-bottom: 0;
+}
+
+/* Batches display styles */
+.batches-section {
+  padding-top: 8px !important;
+}
+
+.batches-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.batch-item {
+  padding: 12px;
+  background: #f8f9fa;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.batch-code {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.batch-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.batch-qty,
+.batch-price,
+.batch-expiry {
+  font-size: 13px;
+  color: #666;
+  line-height: 1.4;
+}

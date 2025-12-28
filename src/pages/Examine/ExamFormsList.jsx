@@ -5,6 +5,7 @@ import SideSheet from "../SideSheet/SideSheet";
 import ExamFormDetail from "./ExamFormDetail";
 import { useBottomSheet } from "../../contexts/BottomSheetContext";
 import { useToast } from "../../contexts/ToastContext";
+import PermissionGuard from "../../components/PermissionGuard";
 
 const ExamFormsList = () => {
   const [examForms, setExamForms] = useState([]);
@@ -50,44 +51,55 @@ const ExamFormsList = () => {
   };
 
   return (
-    <div className="tab-content">
-      <div className="date-filter" style={{ marginBottom: "16px" }}>
-        <input 
-          type="date" 
-          value={selectedDate} 
-          onChange={handleDateChange}
-          className="date-picker"
-        />
-      </div>
-
-      <div className="scroll-list">
-        {loadingExams && <p style={{ color: "#000000ff", textAlign: "center" }}>Đang tải...</p>}
-        {examError && <p style={{ color: "#ff6b6b", textAlign: "center" }}>{examError}</p>}
-        {!loadingExams && examForms.length === 0 && !examError && (
-          <p style={{ color: "#000000ff", textAlign: "center" }}>
-            Không có phiếu khám nào vào ngày {new Date(selectedDate).toLocaleDateString("vi-VN")}
-          </p>
-        )}
-        {examForms.map((examForm) => (
-          <ExamineCard
-            key={examForm.MaPKB}
-            examForm={examForm}
-            onClick={() => handleSelectExamForm(examForm)}
+    <PermissionGuard
+      feature="exam-form-list"
+      fallback={
+        <div className="tab-content">
+          <div className="alert alert-warning" style={{ color: "#000", padding: "16px" }}>
+            Bạn không có quyền xem danh sách phiếu khám
+          </div>
+        </div>
+      }
+    >
+      <div className="tab-content" data-feature="exam-form-list">
+        <div className="date-filter" style={{ marginBottom: "16px" }}>
+          <input 
+            type="date" 
+            value={selectedDate} 
+            onChange={handleDateChange}
+            className="date-picker"
           />
-        ))}
-      </div>
+        </div>
 
-      <SideSheet isOpen={sideSheetOpen} onClose={() => setSideSheetOpen(false)}>
-        {selectedExamForm && (
-          <ExamFormDetail 
-            maPKB={selectedExamForm.MaPKB}
-            onUpdate={handleExamFormUpdated}
-            onDelete={handleExamFormUpdated}
-            onClose={() => setSideSheetOpen(false)}
-          />
-        )}
-      </SideSheet>
-    </div>
+        <div className="scroll-list">
+          {loadingExams && <p style={{ color: "#000000ff", textAlign: "center" }}>Đang tải...</p>}
+          {examError && <p style={{ color: "#ff6b6b", textAlign: "center" }}>{examError}</p>}
+          {!loadingExams && examForms.length === 0 && !examError && (
+            <p style={{ color: "#000000ff", textAlign: "center" }}>
+              Không có phiếu khám nào vào ngày {new Date(selectedDate).toLocaleDateString("vi-VN")}
+            </p>
+          )}
+          {examForms.map((examForm) => (
+            <ExamineCard
+              key={examForm.MaPKB}
+              examForm={examForm}
+              onClick={() => handleSelectExamForm(examForm)}
+            />
+          ))}
+        </div>
+
+        <SideSheet isOpen={sideSheetOpen} onClose={() => setSideSheetOpen(false)}>
+          {selectedExamForm && (
+            <ExamFormDetail 
+              maPKB={selectedExamForm.MaPKB}
+              onUpdate={handleExamFormUpdated}
+              onDelete={handleExamFormUpdated}
+              onClose={() => setSideSheetOpen(false)}
+            />
+          )}
+        </SideSheet>
+      </div>
+    </PermissionGuard>
   );
 };
 

@@ -4,6 +4,7 @@ import ExamineForm from '../pages/Examine/ExamineForm';
 import PatientForm from '../pages/Examine/PatientForm';
 import SearchPatient from '../pages/Examine/SearchPatient';
 import MedicineForm from '../pages/Medicines/MedicineForm';
+import MedicineImportForm from '../pages/Medicines/MedicineImportForm';
 import UnitForm from '../pages/Medicines/UnitForm';
 import UsageForm from '../pages/Medicines/UsageForm';
 import DiseaseForm from '../pages/Examine/DiseaseForm';
@@ -106,6 +107,20 @@ const BottomSheetContainer = () => {
       </BottomSheet>
 
       {/* Medicines Page BottomSheets */}
+      <BottomSheet 
+        isOpen={bottomSheetState.medicineImportForm} 
+        onClose={() => handleClose('medicineImportForm')}
+      >
+        <MedicineImportForm 
+          onSubmit={() => {
+            showSuccess('Nhập thuốc thành công!');
+            triggerRefresh('medicines');
+            handleClose('medicineImportForm');
+          }}
+          onCancel={() => handleClose('medicineImportForm')}
+        />
+      </BottomSheet>
+
       <BottomSheet 
         isOpen={bottomSheetState.medicinesForm} 
         onClose={() => handleClose('medicinesForm')}
