@@ -254,6 +254,12 @@
   color: #28a745;
 }
 
+.amount-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: #28a745;
+  margin-left: 8px;
+}
 .exam-form-card .pay-btn {
   padding: 8px 16px;
   background: #007bff;

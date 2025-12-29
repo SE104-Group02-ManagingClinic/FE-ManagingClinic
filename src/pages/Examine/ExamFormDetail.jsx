@@ -417,7 +417,7 @@ const ExamFormDetail = ({ maPKB, onUpdate, onDelete, onClose }) => {
 
       {error && <div className="alert alert-error">{error}</div>}
 
-      <div className="detail-content">
+      <div className="detail-content" style={{ maxHeight: "85vh", overflowY: "auto" }}>
         {/* Patient Information */}
         <div className="detail-section">
           <h3>Thông tin bệnh nhân</h3>

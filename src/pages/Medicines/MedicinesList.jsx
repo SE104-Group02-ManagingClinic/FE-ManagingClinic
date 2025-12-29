@@ -211,7 +211,7 @@ const MedicinesList = () => {
         {loading && !medicines.length ? (
           <div className="loading">Đang tải...</div>
         ) : (
-          <div className="medicines-table-wrapper">
+          <div className="medicines-table-wrapper" style={{ maxHeight: "600px", overflowY: "auto" }}>
             <table className="medicines-table">
               <thead>
                 <tr>
@@ -297,11 +297,6 @@ const MedicinesList = () => {
                 <div className="detail-row">
                   <span className="detail-label">Cách dùng:</span>
                   <span className="detail-value">{viewingMedicine.TenCachDung || "N/A"}</span>
-                </div>
-
-                <div className="detail-row">
-                  <span className="detail-label">Giá bán:</span>
-                  <span className="detail-value">{formatCurrency(viewingMedicine.GiaBan)}</span>
                 </div>
 
                 {viewingMedicine.CongDung && (
