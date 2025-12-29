@@ -269,7 +269,7 @@ const RevenueReportList = () => {
           </div>
         </div>
 
-        <div className="reports-table-container">
+        <div className="reports-table-container" style={{ maxHeight: "600px", overflowY: "auto" }}>
           {loading ? (
             <div className="loading-state">
               <div className="loading-spinner"></div>

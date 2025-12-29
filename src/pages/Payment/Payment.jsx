@@ -239,9 +239,12 @@ const Payment = () => {
               </div>
             </div>
             <div className="card-footer">
-              <span className="total-amount">
-                Tiền thuốc: {formatCurrency(examForm.TongTienThuoc)}
-              </span>
+              {examForm.MaHD && (
+                <>
+                  <span className="total-amount">Tổng tiền:</span>
+                  <span className="amount-value">{formatCurrency(tienKham + (examForm.TongTienThuoc || 0))}</span>
+                </>
+              )}
               {!examForm.MaHD && (
                 <button className="pay-btn" onClick={(e) => { e.stopPropagation(); handleSelectExamForm(examForm); }}>
                   Thanh toán
