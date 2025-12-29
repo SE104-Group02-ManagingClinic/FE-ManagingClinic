@@ -197,6 +197,159 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
+.exam-history-item.clickable {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.exam-history-item.clickable:hover {
+  background-color: #f0f8f0;
+  box-shadow: 0 2px 6px rgba(76, 175, 80, 0.15);
+  transform: translateY(-2px);
+  border-left-color: #45a049;
+}
+
+.exam-history-item .view-detail {
+  margin-top: 8px;
+  padding: 8px !important;
+  background-color: #e8f5e9 !important;
+  color: #2e7d32 !important;
+  border-left: none !important;
+  text-align: center;
+  font-weight: 600;
+  font-size: 13px;
+  border-radius: 6px;
+}
+
+/* Dropdown chi tiết */
+.exam-detail-expanded {
+  background-color: #fafafa;
+  border: 1px solid #e0e0e0;
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  padding: 0;
+  margin-bottom: 12px;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 1000px;
+  }
+}
+
+.detail-content {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.detail-section {
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 12px;
+}
+
+.detail-section:last-child {
+  border-bottom: none;
+}
+
+.detail-section h5 {
+  margin: 0 0 10px 0;
+  color: #333;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #666;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  font-size: 13px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+}
+
+.detail-row .label {
+  font-weight: 600;
+  color: #666;
+  flex: 0 0 40%;
+}
+
+.detail-row .value {
+  color: #333;
+  text-align: right;
+  flex: 1;
+}
+
+.disease-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.disease-item {
+  padding: 8px 12px;
+  background-color: white;
+  border-left: 3px solid #ff7f50;
+  border-radius: 4px;
+  font-size: 13px;
+  color: #333;
+}
+
+.medicine-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.medicine-item {
+  padding: 10px 12px;
+  background-color: white;
+  border-radius: 6px;
+  border-left: 3px solid #2196F3;
+}
+
+.medicine-name {
+  font-weight: 600;
+  color: #333;
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+
+.medicine-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: #666;
+}
+
+.medicine-info span {
+  padding: 2px 0;
+}
+
+.total-medicine {
+  padding: 10px 12px;
+  background-color: #e3f2fd;
+  border-radius: 6px;
+  font-weight: 600;
+  color: #1565c0;
+  font-size: 13px;
+  text-align: right;
+  margin-top: 8px;
+}
+
 .exam-history-item .info-row {
   display: flex;
   justify-content: space-between;
