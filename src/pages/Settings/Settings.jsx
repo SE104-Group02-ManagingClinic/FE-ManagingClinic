@@ -302,7 +302,8 @@ const Settings = () => {
 
   return (
     <PermissionGuard
-      feature="argument-manage"
+      feature={['disease-list', 'disease-create', 'disease-edit', 'disease-delete', 'unit-list', 'unit-create', 'unit-edit', 'unit-delete', 'usage-list', 'usage-create', 'usage-edit', 'usage-delete', 'argument-manage']}
+      mode="any"
       fallback={
         <div className="settings-container">
           <div className="settings-header">
