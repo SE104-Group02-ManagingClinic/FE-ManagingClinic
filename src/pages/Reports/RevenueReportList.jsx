@@ -103,7 +103,19 @@ const RevenueReportList = () => {
       setDetailLoading(true);
       setSideSheetOpen(true);
       const detail = await getRevenueReportDetail(report.MaBCDT);
-      setReportDetail(detail);
+      // Normalize field names from backend (uppercase to camelCase)
+      const normalizedDetail = {
+        ...detail,
+        Thang: detail.Thang || detail.THANG,
+        Nam: detail.Nam || detail.NAM,
+        ChiTiet: (detail.ChiTiet || []).map(item => ({
+          Ngay: item.Ngay,
+          SoBenhNhan: item.SoBenhNhan,
+          DoanhThu: item.DoanhThu || item.DOANHTHU,
+          TyLe: typeof item.TyLe === 'string' ? parseFloat(item.TyLe) / 100 : item.TyLe
+        }))
+      };
+      setReportDetail(normalizedDetail);
     } catch (error) {
       showError(error.message || "Lỗi khi tải chi tiết báo cáo doanh thu");
     } finally {
@@ -119,7 +131,19 @@ const RevenueReportList = () => {
       // Refresh detail if viewing
       if (selectedReport?.MaBCDT === report.MaBCDT) {
         const detail = await getRevenueReportDetail(report.MaBCDT);
-        setReportDetail(detail);
+        // Normalize field names from backend (uppercase to camelCase)
+        const normalizedDetail = {
+          ...detail,
+          Thang: detail.Thang || detail.THANG,
+          Nam: detail.Nam || detail.NAM,
+          ChiTiet: (detail.ChiTiet || []).map(item => ({
+            Ngay: item.Ngay,
+            SoBenhNhan: item.SoBenhNhan,
+            DoanhThu: item.DoanhThu || item.DOANHTHU,
+            TyLe: typeof item.TyLe === 'string' ? parseFloat(item.TyLe) / 100 : item.TyLe
+          }))
+        };
+        setReportDetail(normalizedDetail);
       }
     } catch (error) {
       showError(error.message || "Lỗi khi cập nhật báo cáo doanh thu");

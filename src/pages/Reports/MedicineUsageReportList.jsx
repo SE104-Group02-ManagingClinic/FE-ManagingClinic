@@ -103,7 +103,13 @@ const MedicineUsageReportList = () => {
       setDetailLoading(true);
       setSideSheetOpen(true);
       const detail = await getMedicineUsageReportDetail(report.MaBCSDT);
-      setReportDetail(detail);
+      // Normalize field names from backend (uppercase to camelCase)
+      const normalizedDetail = {
+        ...detail,
+        Thang: detail.Thang || detail.THANG,
+        Nam: detail.Nam || detail.NAM,
+      };
+      setReportDetail(normalizedDetail);
     } catch (error) {
       showError(error.message || "Lỗi khi tải chi tiết báo cáo");
     } finally {
@@ -119,7 +125,13 @@ const MedicineUsageReportList = () => {
       // Refresh detail if viewing
       if (selectedReport?.MaBCSDT === report.MaBCSDT) {
         const detail = await getMedicineUsageReportDetail(report.MaBCSDT);
-        setReportDetail(detail);
+        // Normalize field names from backend (uppercase to camelCase)
+        const normalizedDetail = {
+          ...detail,
+          Thang: detail.Thang || detail.THANG,
+          Nam: detail.Nam || detail.NAM,
+        };
+        setReportDetail(normalizedDetail);
       }
     } catch (error) {
       showError(error.message || "Lỗi khi cập nhật báo cáo");

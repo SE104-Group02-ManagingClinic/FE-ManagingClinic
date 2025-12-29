@@ -237,10 +237,6 @@ const Payment = () => {
                 <span className="label">CCCD:</span>
                 <span className="value">{examForm.CCCD}</span>
               </div>
-              <div className="info-row">
-                <span className="label">Triệu chứng:</span>
-                <span className="value">{examForm.TrieuChung || "Không có"}</span>
-              </div>
             </div>
             <div className="card-footer">
               <span className="total-amount">
@@ -329,77 +325,79 @@ const Payment = () => {
             )}
 
             {/* Đã thanh toán */}
-            {examFormDetail.MaHD ? (
+            {examFormDetail.MaHD && (
               <div className="paid-notice">
                 <div className="paid-icon">✅</div>
                 <p>Phiếu khám này đã được thanh toán</p>
                 <p className="invoice-code">Mã hóa đơn: {examFormDetail.MaHD}</p>
               </div>
-            ) : (
-              <>
-                {/* Lựa chọn lấy thuốc */}
-                <div className="detail-section medicine-option">
-                  <h4>Lựa chọn lấy thuốc</h4>
-                  <div className="option-buttons">
-                    <button 
-                      className={`option-btn ${takeMedicine ? 'active' : ''}`}
-                      onClick={() => setTakeMedicine(true)}
-                    >
-                      💊 Lấy thuốc
-                    </button>
-                    <button 
-                      className={`option-btn ${!takeMedicine ? 'active warning' : ''}`}
-                      onClick={() => setTakeMedicine(false)}
-                    >
-                      ❌ Không lấy thuốc
-                    </button>
-                  </div>
-                  {!takeMedicine && (
-                    <p className="warning-text">
-                      ⚠️ Nếu không lấy thuốc, thuốc sẽ được hoàn lại vào kho và không tính tiền thuốc.
-                    </p>
-                  )}
-                </div>
-
-                {/* Tổng tiền */}
-                <div className="payment-summary">
-                  <div className="summary-row">
-                    <span>Tiền khám:</span>
-                    <span>{formatCurrency(tienKham)}</span>
-                  </div>
-                  <div className="summary-row">
-                    <span>Tiền thuốc:</span>
-                    <span className={!takeMedicine ? 'crossed' : ''}>
-                      {formatCurrency(takeMedicine ? examFormDetail.TongTienThuoc : 0)}
-                    </span>
-                  </div>
-                  <div className="summary-row total">
-                    <span>Tổng cộng:</span>
-                    <span>
-                      {formatCurrency(tienKham + (takeMedicine ? (examFormDetail.TongTienThuoc || 0) : 0))}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Nút thanh toán */}
-                <div className="payment-actions">
-                  <button 
-                    className="btn-cancel"
-                    onClick={() => setSideSheetOpen(false)}
-                    disabled={paymentLoading}
-                  >
-                    Hủy
-                  </button>
-                  <button 
-                    className="btn-pay"
-                    onClick={handlePayment}
-                    disabled={paymentLoading}
-                  >
-                    {paymentLoading ? "Đang xử lý..." : "💳 Thanh toán"}
-                  </button>
-                </div>
-              </>
             )}
+
+            {/* Lựa chọn lấy thuốc */}
+            {!examFormDetail.MaHD && (
+              <div className="detail-section medicine-option">
+                <h4>Lựa chọn lấy thuốc</h4>
+                <div className="option-buttons">
+                  <button 
+                    className={`option-btn ${takeMedicine ? 'active' : ''}`}
+                    onClick={() => setTakeMedicine(true)}
+                  >
+                    💊 Lấy thuốc
+                  </button>
+                  <button 
+                    className={`option-btn ${!takeMedicine ? 'active warning' : ''}`}
+                    onClick={() => setTakeMedicine(false)}
+                  >
+                    ❌ Không lấy thuốc
+                  </button>
+                </div>
+                {!takeMedicine && (
+                  <p className="warning-text">
+                    ⚠️ Nếu không lấy thuốc, thuốc sẽ được hoàn lại vào kho và không tính tiền thuốc.
+                  </p>
+                )}
+              </div>
+            )}
+
+            {/* Tổng tiền */}
+            {!examFormDetail.MaHD && (
+              <div className="payment-summary">
+                <div className="summary-row">
+                  <span>Tiền khám:</span>
+                  <span>{formatCurrency(tienKham)}</span>
+                </div>
+                <div className="summary-row">
+                  <span>Tiền thuốc:</span>
+                  <span className={!takeMedicine ? 'crossed' : ''}>
+                    {formatCurrency(takeMedicine ? examFormDetail.TongTienThuoc : 0)}
+                  </span>
+                </div>
+                <div className="summary-row total">
+                  <span>Tổng cộng:</span>
+                  <span>
+                    {formatCurrency(tienKham + (takeMedicine ? (examFormDetail.TongTienThuoc || 0) : 0))}
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* Nút thanh toán */}
+            <div className="payment-actions">
+              <button 
+                className="btn-cancel"
+                onClick={() => setSideSheetOpen(false)}
+                disabled={paymentLoading || !!examFormDetail.MaHD}
+              >
+                Hủy
+              </button>
+              <button 
+                className="btn-pay"
+                onClick={handlePayment}
+                disabled={paymentLoading || !!examFormDetail.MaHD}
+              >
+                {paymentLoading ? "Đang xử lý..." : "💳 Thanh toán"}
+              </button>
+            </div>
           </div>
         )}
       </SideSheet>
