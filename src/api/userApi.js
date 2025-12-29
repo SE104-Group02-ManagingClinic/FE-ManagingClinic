@@ -45,6 +45,7 @@ export const loginUser = async (TenDangNhap, MatKhau) => {
   
   // Debug: Log response để kiểm tra
   console.log('✅ Login API response:', data);
+  console.log('📋 Response keys:', Object.keys(data));
   
   // ⚠️ Xử lý 3 format từ backend:
   // Format 1: { token, user, permissions } - New
@@ -57,24 +58,28 @@ export const loginUser = async (TenDangNhap, MatKhau) => {
   // Extract features từ DanhSachChucNang (component codes)
   let features = [];
   if (data.DanhSachChucNang && Array.isArray(data.DanhSachChucNang)) {
-    console.log('📦 Found DanhSachChucNang:', data.DanhSachChucNang);
+    console.group('🔧 Processing DanhSachChucNang');
+    console.log('📦 Found DanhSachChucNang with', data.DanhSachChucNang.length, 'items');
     
     // Flatten tất cả TenThanhPhanDuocLoad thành một mảng features
     features = data.DanhSachChucNang.flatMap(chucNang => {
       try {
         // TenThanhPhanDuocLoad là JSON string: "[\"user-list\",\"user-create\"]"
         const components = JSON.parse(chucNang.TenThanhPhanDuocLoad || '[]');
-        console.log(`  ✅ ${chucNang.MaChucNang}: ${JSON.stringify(components)}`);
+        console.log(`  ✅ ${chucNang.MaChucNang} (${chucNang.TenChucNang}):`, components);
         return components;
       } catch (e) {
-        console.error(`  ❌ Error parsing TenThanhPhanDuocLoad for ${chucNang.MaChucNang}:`, e);
+        console.error(`  ❌ Error parsing TenThanhPhanDuocLoad for ${chucNang.MaChucNang}:`, chucNang.TenThanhPhanDuocLoad, e);
         return [];
       }
     });
     
     // Loại bỏ duplicates
     features = [...new Set(features)];
-    console.log('✅ Extracted features:', features);
+    console.log('✨ Final features (deduplicated):', features);
+    console.groupEnd();
+  } else {
+    console.warn('⚠️ DanhSachChucNang not found or not an array');
   }
   
   if (data.token && data.user) {

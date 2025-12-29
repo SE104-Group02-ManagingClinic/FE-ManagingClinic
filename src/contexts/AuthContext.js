@@ -68,11 +68,15 @@ export const AuthProvider = ({ children }) => {
     
     // Extract features/components từ backend
     const featureCodes = responseData.features || responseData.components || [];
+    console.group('🎯 AuthContext Features Processing');
     console.log('✅ Extracted features:', featureCodes);
     console.log('   Features count:', featureCodes.length);
     if (featureCodes.length > 0) {
-      console.log('   Sample features:', featureCodes.slice(0, 5));
+      console.log('   First 10 features:', featureCodes.slice(0, 10));
+    } else {
+      console.warn('⚠️ No features found! responseData:', responseData);
     }
+    console.groupEnd();
     setFeatures(featureCodes);
     
     // Lưu toàn bộ vào localStorage
@@ -127,7 +131,7 @@ export const AuthProvider = ({ children }) => {
   // Lấy sidebar items mà user có quyền
   const getSidebarItems = () => {
     const userGroup = user?.MaNhom || null;
-    return getAccessibleSidebarItems(permissions, userGroup);
+    return getAccessibleSidebarItems(permissions, userGroup, features);
   };
 
   // Kiểm tra đã đăng nhập chưa
