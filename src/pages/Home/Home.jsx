@@ -6,6 +6,7 @@ import Sidebar from "../../components/sidebar/Sidebar";
 import ButtonHome from "../../components/buttons/ButtonHome";
 import { useBottomSheet } from "../../contexts/BottomSheetContext";
 import { getDailyExamList } from "../../api/listExamApi";
+import { getThamSo } from "../../api/argumentApi";
 import SideSheet from "../SideSheet/SideSheet";
 import ExamFormDetail from "../Examine/ExamFormDetail";
 import { useToast } from "../../contexts/ToastContext";
@@ -70,8 +71,24 @@ const Home = () => {
     setBottomSheetState(prev => ({...prev, homeExamine: true}));
   };
 
-  const handleOpenReception = () => {
-    setBottomSheetState(prev => ({...prev, homeReception: true}));
+  const handleOpenReception = async () => {
+    try {
+      // Lấy thông tin tham số hệ thống
+      const thamSo = await getThamSo();
+      const soBenhNhanToiDa = thamSo.SoBenhNhanToiDa;
+      const soBenhNhanHienTai = examList.length;
+
+      // Kiểm tra xem số bệnh nhân có vượt quá tối đa hay không
+      if (soBenhNhanHienTai >= soBenhNhanToiDa) {
+        showError(`Số bệnh nhân hôm nay đã đạt tối đa (${soBenhNhanToiDa}). Không thể tiếp nhận thêm bệnh nhân!`);
+        return;
+      }
+
+      // Nếu chưa vượt, mở form tiếp nhận bệnh nhân
+      setBottomSheetState(prev => ({...prev, homeReception: true}));
+    } catch (err) {
+      showError(err.message || "Lỗi khi kiểm tra số bệnh nhân tối đa");
+    }
   };
 
   return (
@@ -115,7 +132,6 @@ const Home = () => {
 
         <div className="Buttons">
           <ButtonHome label="Tiếp nhận bệnh nhân" onClick={handleOpenReception} data-feature="patient.reception" />
-          <ButtonHome label="Phiếu khám bệnh mới" onClick={handleOpenExamine} data-feature="examine.create" />
         </div>
       </div>
 

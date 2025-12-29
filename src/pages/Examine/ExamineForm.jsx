@@ -552,6 +552,7 @@ const ExamineForm = ({ initialData, initialPatient, onSubmit, onCancel }) => {
             </div>
           )}
           
+          {!(initialPatient?.CCCD && !isEditMode && !isPaid) && (
           <div className="search-box">
             <label>Tìm bệnh nhân (CCCD):</label>
             <div className="search-input-group">
@@ -586,6 +587,7 @@ const ExamineForm = ({ initialData, initialPatient, onSubmit, onCancel }) => {
               </div>
             )}
           </div>
+          )}
 
           {patientInfo && (
             <div className={`patient-info-box ${patientInfo.isPending ? 'pending' : ''}`}>

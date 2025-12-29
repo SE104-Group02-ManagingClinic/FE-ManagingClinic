@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { getAllPatients } from "../../api/patientApi";
 import PatientTicket from "./PatientTicket";
-import SideSheet from "../SideSheet/SideSheet";
 import PatientDetail from "./PatientDetail";
 import { useBottomSheet } from "../../contexts/BottomSheetContext";
 import { useToast } from "../../contexts/ToastContext";
@@ -12,7 +11,6 @@ const PatientsList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [selectedPatient, setSelectedPatient] = useState(null);
-  const [sideSheetOpen, setSideSheetOpen] = useState(false);
   const [isPatientEditing, setIsPatientEditing] = useState(false);
   const { refreshTriggers, pendingPatients } = useBottomSheet();
   const { showError } = useToast();
@@ -40,29 +38,26 @@ const PatientsList = () => {
   const allPatients = [...pendingPatients, ...patients];
 
   const handleSelectPatient = (patient) => {
-    // Chỉ hiển thị thông tin bệnh nhân, không trigger endpoint
+    // Xổ ra thông tin bệnh nhân inline
     setSelectedPatient(patient);
-    setSideSheetOpen(true);
   };
 
   const handlePatientUpdated = () => {
-    // Close first so UI updates immediately
+    // Đóng chi tiết và refresh danh sách
     setIsPatientEditing(false);
-    setSideSheetOpen(false);
     setSelectedPatient(null);
     fetchPatients();
   };
 
   const handlePatientDeleted = () => {
-    // Close immediately on delete
-    setSideSheetOpen(false);
+    // Đóng chi tiết ngay lập tức
     setSelectedPatient(null);
     setIsPatientEditing(false);
-    // Refresh list after closing
+    // Refresh danh sách sau khi đóng
     fetchPatients();
   };
 
-  const handleSideSheetClose = () => {
+  const handleClosePatientDetail = () => {
     if (isPatientEditing) {
       const confirmClose = window.confirm('Bạn đang chỉnh sửa thông tin. Bạn có chắc muốn đóng và hủy các thay đổi?');
       if (!confirmClose) {
@@ -70,7 +65,6 @@ const PatientsList = () => {
       }
     }
     setIsPatientEditing(false);
-    setSideSheetOpen(false);
     setSelectedPatient(null);
   };
 
@@ -95,14 +89,46 @@ const PatientsList = () => {
         ))}
       </div>
 
-      <SideSheet isOpen={sideSheetOpen} onClose={handleSideSheetClose}>
-        <PatientDetail 
-          patient={selectedPatient} 
-          onPatientUpdated={handlePatientUpdated}
-          onPatientDeleted={handlePatientDeleted}
-          onEditStateChange={setIsPatientEditing} 
-        />
-      </SideSheet>
+      {selectedPatient && (
+        <div className="patient-detail-container" style={{
+          marginTop: '20px',
+          padding: '20px',
+          backgroundColor: '#f9f9f9',
+          borderRadius: '8px',
+          border: '1px solid #ddd',
+          maxHeight: '500px',
+          overflowY: 'auto'
+        }}>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '20px'
+          }}>
+            <h3 style={{ margin: 0, color: '#333' }}>Chi tiết bệnh nhân: {selectedPatient.HoTen}</h3>
+            <button 
+              onClick={handleClosePatientDetail}
+              style={{
+                padding: '8px 16px',
+                backgroundColor: '#999',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '14px'
+              }}
+            >
+              Đóng
+            </button>
+          </div>
+          <PatientDetail 
+            patient={selectedPatient} 
+            onPatientUpdated={handlePatientUpdated}
+            onPatientDeleted={handlePatientDeleted}
+            onEditStateChange={setIsPatientEditing} 
+          />
+        </div>
+      )}
     </div>
   );
 };
