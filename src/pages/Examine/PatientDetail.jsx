@@ -4,6 +4,7 @@ import './PatientDetail.css';
 import { updatePatient, deletePatient } from '../../api/patientApi';
 import { useToast } from '../../contexts/ToastContext';
 import DeleteConfirmModal from '../../components/DeleteConfirmModal';
+import PatientExamHistory from './PatientExamHistory';
 
 const PatientDetail = ({ patient, onPatientUpdated, onPatientDeleted, onEditStateChange }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -242,6 +243,40 @@ const PatientDetail = ({ patient, onPatientUpdated, onPatientDeleted, onEditStat
             >
               🗑️ Xóa
             </button>
+          </div>
+
+          {/* Hiển thị phiếu khám từ API nếu có */}
+          {patient.PhieuKhamBenh && patient.PhieuKhamBenh.length > 0 && (
+            <div className="api-exam-history-section">
+              <h4>📋 Lịch sử khám bệnh ({patient.PhieuKhamBenh.length})</h4>
+              <div className="api-exam-history-list">
+                {patient.PhieuKhamBenh.map((phieu, index) => (
+                  <div key={index} className="api-exam-history-item">
+                    <div className="info-row">
+                      <span className="label">Ngày khám:</span>
+                      <span className="value">
+                        {new Date(phieu.NgayKham).toLocaleDateString('vi-VN')}
+                      </span>
+                    </div>
+                    <div className="info-row">
+                      <span className="label">Triệu chứng:</span>
+                      <span className="value">{phieu.TrieuChung || 'N/A'}</span>
+                    </div>
+                    {phieu.Benh && phieu.Benh.length > 0 && (
+                      <div className="info-row">
+                        <span className="label">Bệnh:</span>
+                        <span className="value">{phieu.Benh.join(', ')}</span>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Exam History Section - từ database nếu có */}
+          <div className="exam-history-section">
+            <PatientExamHistory patient={patient} />
           </div>
         </>
       ) : (

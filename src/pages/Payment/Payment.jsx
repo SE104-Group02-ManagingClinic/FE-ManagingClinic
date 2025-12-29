@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./Payment.css";
 import { getExamFormsByDate, getExamFormById } from "../../api/medicalExamFormApi";
+import { getDailyExamList } from "../../api/listExamApi";
 import { createInvoice } from "../../api/invoiceApi";
 import { getThamSo } from "../../api/argumentApi";
 import { useToast } from "../../contexts/ToastContext";
@@ -52,8 +53,24 @@ const Payment = () => {
   const fetchExamForms = async () => {
     try {
       setLoading(true);
-      const data = await getExamFormsByDate(selectedDate);
-      setExamForms(data || []);
+      // Sử dụng API getDailyExamList để lấy danh sách bệnh nhân khám trong ngày
+      // API trả về: { NgayKham, TongSoBenhNhan, DanhSachBenhNhan }
+      const response = await getDailyExamList(selectedDate);
+      
+      // Map dữ liệu từ DanhSachBenhNhan thành format examForms
+      const mappedData = response.DanhSachBenhNhan.map(bn => ({
+        MaPKB: bn.MaPKB,
+        MaBN: bn.MaBN,
+        HoTen: bn.HoTen,
+        CCCD: bn.CCCD,
+        GioiTinh: bn.GioiTinh,
+        DiaChi: bn.DiaChi,
+        MaHD: bn.MaHD, // null = chưa thanh toán, có nội dung = đã thanh toán
+        NgayKham: response.NgayKham,
+        TongTienThuoc: 0, // Sẽ được cập nhật khi load chi tiết
+      })) || [];
+      
+      setExamForms(mappedData);
       setError("");
     } catch (err) {
       showError(err.message || "Lỗi khi tải danh sách phiếu khám");
@@ -108,9 +125,8 @@ const Payment = () => {
         showInfo("Đã hoàn thuốc vào kho do bệnh nhân không lấy thuốc.");
       }
 
-      // Refresh danh sách
-      triggerRefresh('invoices');
-      triggerRefresh('examForms');
+      // Refresh danh sách ngay sau khi thanh toán thành công
+      await fetchExamForms();
       
       // Đóng side sheet
       setSideSheetOpen(false);
@@ -147,14 +163,22 @@ const Payment = () => {
   return (
     <div className="payment-container">
       <div className="payment-header">
-        <h2>💰 Thanh toán</h2>
-        <div className="date-filter">
+        <h2>💵Thanh toán</h2>
+        <div className="header-controls">
           <input 
             type="date" 
             value={selectedDate} 
             onChange={(e) => setSelectedDate(e.target.value)}
             className="date-picker"
           />
+          <button 
+            className="btn-refresh"
+            onClick={fetchExamForms}
+            disabled={loading}
+            title="Làm mới danh sách"
+          >
+            {loading ? "⏳" : "🔄"}
+          </button>
         </div>
       </div>
 

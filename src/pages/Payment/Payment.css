@@ -19,6 +19,12 @@
   margin: 0;
 }
 
+.payment-header .header-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
 .payment-header .date-picker {
   padding: 10px 14px;
   border: 1px solid #ced4da;
@@ -31,6 +37,35 @@
   outline: none;
   border-color: #007bff;
   box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.payment-header .btn-refresh {
+  padding: 10px 14px;
+  border: 1px solid #ced4da;
+  background: white;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.payment-header .btn-refresh:hover:not(:disabled) {
+  background: #f8f9fa;
+  border-color: #007bff;
+}
+
+.payment-header .btn-refresh:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.payment-header .btn-refresh:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 /* Stats */

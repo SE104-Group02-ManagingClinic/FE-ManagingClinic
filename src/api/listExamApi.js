@@ -88,25 +88,42 @@ export const removePatientFromExamList = async (data) => {
  * Lấy danh sách bệnh nhân khám trong ngày
  * @param {string} ngayKham - Ngày khám (yyyy-MM-dd)
  * @returns {Promise<object>} Thông tin danh sách khám trong ngày
+ *  Cấu trúc: { NgayKham, TongSoBenhNhan, DanhSachBenhNhan: [...] }
  */
 export const getDailyExamList = async (ngayKham) => {
   if (!ngayKham || ngayKham.trim() === "") {
     throw new Error("Ngày khám không được để trống");
   }
 
-  const response = await fetch(`/api/listExam/getDaylyList?NgayKham=${encodeURIComponent(ngayKham)}`, {
+  // ✅ Sử dụng path parameter theo API spec: /listExam/getDaylyList/{NgayKham}
+  const response = await fetch(`/api/listExam/getDaylyList/${encodeURIComponent(ngayKham)}`, {
     method: "GET",
     headers: {
       "Accept": "application/json",
     },
   });
 
-  if (!response.ok) {
-    // 500 hoặc lỗi khác
-    const data = await response.json();
-    throw new Error(data.error || "Lỗi hệ thống khi lấy danh sách khám");
+  // ✅ Xử lý theo STATUS từ API Swagger
+  if (response.status === 404) {
+    // Không tìm thấy dữ liệu cho ngày khám - trả về danh sách rỗng
+    return {
+      NgayKham: ngayKham,
+      TongSoBenhNhan: 0,
+      DanhSachBenhNhan: [],
+    };
   }
 
-  // ✅ 200 OK
+  if (response.status === 500) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.error || "Lỗi hệ thống khi lấy danh sách khám bệnh");
+  }
+
+  if (!response.ok) {
+    // Xử lý các lỗi khác
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.error || data.message || "Lỗi không xác định khi lấy danh sách khám bệnh");
+  }
+
+  // ✅ 200 OK - trả về dữ liệu
   return response.json();
 };

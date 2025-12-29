@@ -40,6 +40,7 @@ const PatientsList = () => {
   const allPatients = [...pendingPatients, ...patients];
 
   const handleSelectPatient = (patient) => {
+    // Chỉ hiển thị thông tin bệnh nhân, không trigger endpoint
     setSelectedPatient(patient);
     setSideSheetOpen(true);
   };

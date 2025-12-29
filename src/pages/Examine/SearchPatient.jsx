@@ -24,6 +24,14 @@ const SearchPatient = () => {
     try {
       const result = await searchPatientByCCCD(cccd);
       
+      // Handle 404 - không tìm thấy bệnh nhân
+      if (result === null) {
+        setError("Không tìm thấy bệnh nhân");
+        showError("Không tìm thấy bệnh nhân");
+        setLoading(false);
+        return;
+      }
+      
       // Handle both array and object responses
       let patient = null;
       if (Array.isArray(result) && result.length > 0) {
@@ -36,7 +44,8 @@ const SearchPatient = () => {
         setSearchResult(patient);
         showSuccess(`Tìm thấy bệnh nhân: ${patient.HoTen}`);
       } else {
-        setError("Không tìm thấy bệnh nhân với CCCD này");
+        setError("Không tìm thấy bệnh nhân");
+        showError("Không tìm thấy bệnh nhân");
       }
     } catch (err) {
       showError(err.message || "Lỗi khi tìm kiếm bệnh nhân");
@@ -127,6 +136,37 @@ const SearchPatient = () => {
               <span className="value">{searchResult.SDT}</span>
             </div>
           </div>
+
+          {/* Hiển thị lịch sử phiếu khám nếu có */}
+          {searchResult.PhieuKhamBenh && searchResult.PhieuKhamBenh.length > 0 && (
+            <div className="exam-history-section">
+              <h4>📋 Lịch sử khám bệnh ({searchResult.PhieuKhamBenh.length})</h4>
+              <div className="exam-history-list">
+                {searchResult.PhieuKhamBenh.map((phieu, index) => (
+                  <div key={index} className="exam-history-item">
+                    <div className="info-row">
+                      <span className="label">Ngày khám:</span>
+                      <span className="value">
+                        {new Date(phieu.NgayKham).toLocaleDateString('vi-VN')}
+                      </span>
+                    </div>
+                    <div className="info-row">
+                      <span className="label">Triệu chứng:</span>
+                      <span className="value">{phieu.TrieuChung || 'N/A'}</span>
+                    </div>
+                    {phieu.Benh && phieu.Benh.length > 0 && (
+                      <div className="info-row">
+                        <span className="label">Bệnh chẩn đoán:</span>
+                        <span className="value">
+                          {phieu.Benh.join(', ')}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

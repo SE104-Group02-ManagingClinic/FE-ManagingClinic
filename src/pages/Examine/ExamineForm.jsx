@@ -2,19 +2,21 @@ import React, { useState, useEffect } from "react";
 import "./ExamineForm.css";
 import { createMedicalExamForm, updateMedicalExamForm, confirmMedicalExamForm } from "../../api/medicalExamFormApi";
 import { getAllDiseases } from "../../api/diseaseApi";
-import { getAllMedicines } from "../../api/medicineApi";
+import { getAllMedicines, searchMedicines } from "../../api/medicineApi";
 import { searchPatientByCCCD, createPatient } from "../../api/patientApi";
+import { getThamSo } from "../../api/argumentApi";
 import { useBottomSheet } from "../../contexts/BottomSheetContext";
 import { useToast } from "../../contexts/ToastContext";
 
 const ExamineForm = ({ initialData, initialPatient, onSubmit, onCancel }) => {
   const isEditMode = !!initialData?.MaPKB;
+  const isPaid = !!(initialData?.MaPKB && initialData?.MaHD); // Kiểm tra đã thanh toán
   const { getPendingPatientByCCCD, removePendingPatient, addPendingPatient, refreshTriggers } = useBottomSheet();
   const { showSuccess, showError, showInfo, showWarning } = useToast();
   
   // Form state
   const [formData, setFormData] = useState({
-    MaBN: initialData?.MaBN || initialPatient?.MaBN || "",
+    MaBN: initialData?.MaBN || "",
     NgayKham: initialData?.NgayKham || new Date().toISOString().split('T')[0],
     TrieuChung: initialData?.TrieuChung || "",
     CT_Benh: initialData?.CT_Benh?.map(b => b.MaBenh || b) || [],
@@ -22,10 +24,13 @@ const ExamineForm = ({ initialData, initialPatient, onSubmit, onCancel }) => {
     TongTienThuoc: initialData?.TongTienThuoc || 0,
   });
 
-  // Patient search
+  // Patient search - Auto-fill CCCD từ initialPatient
   const [cccdSearch, setCccdSearch] = useState(initialData?.CCCD || initialPatient?.CCCD || "");
   const [patientInfo, setPatientInfo] = useState(initialPatient || null);
   const [searchError, setSearchError] = useState("");
+  
+  // Tiền khám từ tham số hệ thống
+  const [tienKham, setTienKham] = useState(0);
 
   // Dropdowns data
   const [diseases, setDiseases] = useState([]);
@@ -63,22 +68,62 @@ const ExamineForm = ({ initialData, initialPatient, onSubmit, onCancel }) => {
     SDT: "",
   });
 
-  // Load diseases and medicines on mount and when they change
+  // Load tiền khám, diseases và medicines on mount and when they change
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [diseasesData, medicinesData] = await Promise.all([
+        const [diseasesData, medicinesData, thamSoData] = await Promise.all([
           getAllDiseases(),
           getAllMedicines(),
+          getThamSo(),
         ]);
         setDiseases(diseasesData);
         setMedicines(medicinesData);
+        setTienKham(thamSoData?.TienKham || 0);
       } catch (err) {
         showError("Lỗi khi tải dữ liệu: " + err.message);
       }
     };
     loadData();
   }, [refreshTriggers.medicines, refreshTriggers.diseases]);
+  
+  // Auto search patient nếu có CCCD từ initialPatient
+  useEffect(() => {
+    if (initialPatient?.CCCD && !patientInfo) {
+      // Tự động tìm bệnh nhân khi có CCCD từ initialPatient
+      const searchPatient = async () => {
+        try {
+          // Kiểm tra bệnh nhân pending trước
+          const pendingPatient = getPendingPatientByCCCD(initialPatient.CCCD);
+          if (pendingPatient) {
+            setPatientInfo({ ...pendingPatient, isPending: true });
+            setFormData(prev => ({ ...prev, MaBN: pendingPatient.MaBN }));
+            return;
+          }
+
+          // Nếu không có pending, tìm trong database
+          const result = await searchPatientByCCCD(initialPatient.CCCD);
+          
+          // Handle both array and object responses
+          let patient = null;
+          if (Array.isArray(result) && result.length > 0) {
+            patient = result[0];
+          } else if (result && typeof result === 'object' && result.MaBN) {
+            patient = result;
+          }
+
+          if (patient) {
+            setPatientInfo({ ...patient, isPending: false });
+            setFormData(prev => ({ ...prev, MaBN: patient.MaBN }));
+          }
+        } catch (err) {
+          console.error("Lỗi khi tự động tìm bệnh nhân:", err);
+        }
+      };
+      
+      searchPatient();
+    }
+  }, [initialPatient?.CCCD]);
 
   // Search patient by CCCD
   const handleSearchPatient = async () => {
@@ -237,15 +282,57 @@ const ExamineForm = ({ initialData, initialPatient, onSubmit, onCancel }) => {
 
       const results = await confirmMedicalExamForm(checkData);
       
-      // Cập nhật kết quả vào medicineRows
+      // Lấy giá bán chính xác từ searchMedicines API cho mỗi lô
+      const medicinePricesMap = {};
+      
+      for (const result of results) {
+        if (result.MaThuoc) {
+          try {
+            // Lấy tên thuốc từ medicines array
+            const medicine = medicines.find(m => m.MaThuoc === result.MaThuoc);
+            if (medicine && medicine.TenThuoc) {
+              const searchResult = await searchMedicines(medicine.TenThuoc);
+              if (searchResult && searchResult.length > 0) {
+                const medicineDetail = searchResult[0];
+                // Tìm lô khớp với MaLo từ confirmMedicalExamForm
+                if (medicineDetail.LoThuoc && Array.isArray(medicineDetail.LoThuoc)) {
+                  const matchingLot = medicineDetail.LoThuoc.find(lot => lot.MaLo === result.MaLo);
+                  if (matchingLot) {
+                    medicinePricesMap[result.MaThuoc] = {
+                      giaBan: matchingLot.GiaBan,
+                      tenThuoc: medicineDetail.TenThuoc,
+                    };
+                  } else {
+                    console.warn(`Không tìm thấy lô ${result.MaLo} cho thuốc ${result.MaThuoc}`);
+                  }
+                }
+              }
+            } else {
+              console.warn(`Không tìm thấy tên thuốc cho ${result.MaThuoc}`);
+            }
+          } catch (err) {
+            console.warn(`Không thể tìm giá bán cho thuốc ${result.MaThuoc}:`, err.message);
+          }
+        }
+      }
+      
+      // Cập nhật kết quả vào medicineRows và tự động điền đơn giá
       const updatedRows = medicineRows.map(row => {
         if (!row.MaThuoc) return row;
         
         const lotResult = results.find(r => r.MaThuoc === row.MaThuoc);
         if (lotResult) {
+          // Lấy đơn giá từ medicinePricesMap (từ API searchMedicines)
+          // Nếu không có, fallback về giá hiện tại
+          const priceInfo = medicinePricesMap[row.MaThuoc];
+          const donGia = priceInfo?.giaBan || row.GiaBan || 0;
+          const soLuong = parseFloat(row.SoLuong) || 0;
+          
           return {
             ...row,
             MaLo: lotResult.MaLo,
+            GiaBan: donGia,
+            ThanhTien: soLuong * donGia,
             lotStatus: lotResult.MaLo ? 'available' : 'unavailable',
           };
         }
@@ -254,13 +341,17 @@ const ExamineForm = ({ initialData, initialPatient, onSubmit, onCancel }) => {
 
       setMedicineRows(updatedRows);
       
-      // Cập nhật formData với MaLo
+      // Cập nhật tổng tiền thuốc
+      const total = updatedRows.reduce((sum, row) => sum + (parseFloat(row.ThanhTien) || 0), 0);
+      
+      // Cập nhật formData với MaLo và tổng tiền
       setFormData(prev => ({
         ...prev,
         CT_Thuoc: updatedRows.filter(row => row.MaThuoc).map(row => ({
           ...row,
           MaLo: row.MaLo,
         })),
+        TongTienThuoc: total,
       }));
 
       // Kiểm tra xem có thuốc nào không đủ lô không
@@ -422,12 +513,45 @@ const ExamineForm = ({ initialData, initialPatient, onSubmit, onCancel }) => {
   return (
     <div className="ticket-container">
       <div className="ticket-header">
-        <h2>{isEditMode ? "Cập nhật phiếu khám bệnh" : "Phiếu khám bệnh mới"}</h2>
+        <h2>
+          {isPaid && "📋 Chi tiết phiếu khám bệnh"}
+          {!isPaid && isEditMode && "✏️ Cập nhật phiếu khám bệnh"}
+          {!isPaid && !isEditMode && "➕ Phiếu khám bệnh mới"}
+        </h2>
       </div>
+      
+      {isPaid && (
+        <div className="payment-badge" style={{
+          padding: '10px',
+          marginBottom: '15px',
+          backgroundColor: '#d4edda',
+          color: '#155724',
+          borderRadius: '5px',
+          border: '1px solid #c3e6cb',
+          textAlign: 'center'
+        }}>
+          ✅ Đã thanh toán - Mã hóa đơn: <strong>{initialData.MaHD}</strong>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit}>
         {/* Patient Search Section */}
         <div className="patient-search-section">
+          {/* Hiển thị thông báo auto-fill */}
+          {initialPatient?.CCCD && !isEditMode && !isPaid && (
+            <div style={{
+              padding: '8px 12px',
+              marginBottom: '10px',
+              backgroundColor: '#e7f3ff',
+              color: '#004085',
+              borderRadius: '4px',
+              border: '1px solid #b3d7ff',
+              fontSize: '0.9em'
+            }}>
+              ℹ️ CCCD đã được tự động điền từ lịch hẹn: <strong>{initialPatient.CCCD}</strong>
+            </div>
+          )}
+          
           <div className="search-box">
             <label>Tìm bệnh nhân (CCCD):</label>
             <div className="search-input-group">
@@ -436,12 +560,12 @@ const ExamineForm = ({ initialData, initialPatient, onSubmit, onCancel }) => {
                 value={cccdSearch}
                 onChange={(e) => setCccdSearch(e.target.value)}
                 placeholder="Nhập số CCCD"
-                disabled={isEditMode}
+                disabled={isEditMode || isPaid}
               />
               <button 
                 type="button" 
                 onClick={handleSearchPatient}
-                disabled={isEditMode || loading}
+                disabled={isEditMode || loading || isPaid}
                 className="btn-search"
               >
                 Tìm
@@ -571,6 +695,7 @@ const ExamineForm = ({ initialData, initialPatient, onSubmit, onCancel }) => {
                 type="date"
                 value={formData.NgayKham}
                 onChange={(e) => setFormData(prev => ({ ...prev, NgayKham: e.target.value }))}
+                disabled={isPaid}
                 required
               />
             </label>
@@ -583,6 +708,7 @@ const ExamineForm = ({ initialData, initialPatient, onSubmit, onCancel }) => {
                 onChange={(e) => setFormData(prev => ({ ...prev, TrieuChung: e.target.value }))}
                 placeholder="Nhập triệu chứng"
                 style={{ resize: 'none' }}
+                disabled={isPaid}
                 required
               />
             </label>
@@ -595,6 +721,7 @@ const ExamineForm = ({ initialData, initialPatient, onSubmit, onCancel }) => {
                 onChange={handleDiseaseChange}
                 size="5"
                 className="disease-select"
+                disabled={isPaid}
               >
                 {diseases.map((disease) => (
                   <option key={disease.MaBenh} value={disease.MaBenh}>
@@ -616,17 +743,19 @@ const ExamineForm = ({ initialData, initialPatient, onSubmit, onCancel }) => {
                     <div key={disease.MaBenh} className="disease-detail-card">
                       <div className="disease-header">
                         <strong>{disease.TenBenh}</strong>
-                        <button 
-                          type="button" 
-                          className="btn-remove-disease"
-                          onClick={() => {
-                            const newSelected = selectedDiseases.filter(id => id !== diseaseId);
-                            setSelectedDiseases(newSelected);
-                            setFormData(prev => ({ ...prev, CT_Benh: newSelected }));
-                          }}
-                        >
-                          ✕
-                        </button>
+                        {!isPaid && (
+                          <button 
+                            type="button" 
+                            className="btn-remove-disease"
+                            onClick={() => {
+                              const newSelected = selectedDiseases.filter(id => id !== diseaseId);
+                              setSelectedDiseases(newSelected);
+                              setFormData(prev => ({ ...prev, CT_Benh: newSelected }));
+                            }}
+                          >
+                            ✕
+                          </button>
+                        )}
                       </div>
                       {disease.TrieuChung && (
                         <p><span className="label">Triệu chứng:</span> {disease.TrieuChung}</p>
@@ -652,18 +781,23 @@ const ExamineForm = ({ initialData, initialPatient, onSubmit, onCancel }) => {
         <div className="medicine-section">
           <div className="section-header">
             <h3>Danh sách thuốc</h3>
-            <div className="section-actions">
-              <button 
-                type="button" 
-                onClick={handleCheckMedicineLots} 
-                className="btn-check-lot"
-                disabled={checkingLots || isEditMode}
-              >
-                {checkingLots ? "Đang kiểm tra..." : "🔍 Kiểm tra lô thuốc"}
-              </button>
-              <button type="button" onClick={handleAddMedicineRow} className="btn-add">
-                + Thêm thuốc
-              </button>
+            <div>
+              {!isPaid && (
+                <button 
+                  type="button" 
+                  onClick={handleCheckMedicineLots}
+                  disabled={checkingLots || medicineRows.filter(r => r.MaThuoc && r.SoLuong > 0).length === 0}
+                  className="btn-check-lots"
+                  style={{ marginRight: '10px' }}
+                >
+                  {checkingLots ? "Đang kiểm tra..." : "🔍 Kiểm tra lô thuốc"}
+                </button>
+              )}
+              {!isPaid && (
+                <button type="button" onClick={handleAddMedicineRow} className="btn-add">
+                  + Thêm thuốc
+                </button>
+              )}
             </div>
           </div>
 
@@ -675,18 +809,18 @@ const ExamineForm = ({ initialData, initialPatient, onSubmit, onCancel }) => {
                 <th>Số lượng *</th>
                 <th>Đơn giá</th>
                 <th>Thành tiền</th>
-                <th>Lô thuốc</th>
                 <th>Thao tác</th>
               </tr>
             </thead>
             <tbody>
               {medicineRows.map((row, index) => (
-                <tr key={index} className={row.lotStatus === 'unavailable' ? 'row-unavailable' : row.lotStatus === 'available' ? 'row-available' : ''}>
+                <tr key={index}>
                   <td>{index + 1}</td>
                   <td>
                     <select
                       value={row.MaThuoc}
                       onChange={(e) => handleMedicineChange(index, "MaThuoc", e.target.value)}
+                      disabled={isPaid}
                     >
                       <option value="">-- Chọn thuốc --</option>
                       {medicines.map((medicine) => (
@@ -702,6 +836,7 @@ const ExamineForm = ({ initialData, initialPatient, onSubmit, onCancel }) => {
                       min="1"
                       value={row.SoLuong}
                       onChange={(e) => handleMedicineChange(index, "SoLuong", e.target.value)}
+                      disabled={isPaid}
                     />
                   </td>
                   <td>
@@ -710,56 +845,69 @@ const ExamineForm = ({ initialData, initialPatient, onSubmit, onCancel }) => {
                       min="0"
                       value={row.GiaBan}
                       onChange={(e) => handleMedicineChange(index, "GiaBan", e.target.value)}
+                      disabled={isPaid || row.MaLo}
+                      readOnly={!!row.MaLo}
                     />
                   </td>
-                  <td>{formatCurrency(row.ThanhTien)}</td>
-                  <td className="lot-cell">
+                  <td>
+                    {formatCurrency(row.ThanhTien)}
                     {row.lotStatus === 'available' && (
-                      <span className="lot-badge available">✅ {row.MaLo}</span>
+                      <span style={{ color: 'green', marginLeft: '5px' }}>✓</span>
                     )}
                     {row.lotStatus === 'unavailable' && (
-                      <span className="lot-badge unavailable">❌ Không đủ</span>
-                    )}
-                    {!row.lotStatus && row.MaThuoc && (
-                      <span className="lot-badge pending">⏳ Chưa kiểm tra</span>
+                      <span style={{ color: 'red', marginLeft: '5px' }}>✗</span>
                     )}
                   </td>
                   <td>
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveMedicineRow(index)}
-                      className="btn-remove"
-                      disabled={medicineRows.length === 1}
-                    >
-                      Xóa
-                    </button>
+                    {!isPaid && (
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveMedicineRow(index)}
+                        className="btn-remove"
+                        disabled={medicineRows.length === 1}
+                      >
+                        Xóa
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-          
-          {!isEditMode && medicineRows.some(row => row.MaThuoc) && (
-            <p className="lot-check-hint">
-              💡 <strong>Lưu ý:</strong> Hãy kiểm tra lô thuốc trước khi tạo phiếu khám để đảm bảo có đủ số lượng trong 1 lô.
-            </p>
-          )}
         </div>
 
         {/* Total */}
         <div className="ticket-total">
-          <strong>Tổng tiền thuốc:</strong>
-          <span className="total-amount">{formatCurrency(formData.TongTienThuoc)}</span>
+          <div style={{ marginBottom: '10px' }}>
+            <strong>Tổng tiền thuốc:</strong>
+            <span className="total-amount" style={{ marginLeft: '10px' }}>{formatCurrency(formData.TongTienThuoc)}</span>
+          </div>
+          <div style={{ marginBottom: '10px' }}>
+            <strong>Tiền khám:</strong>
+            <span className="total-amount" style={{ marginLeft: '10px' }}>{formatCurrency(tienKham)}</span>
+          </div>
+          <div style={{ 
+            borderTop: '2px solid #ddd', 
+            paddingTop: '10px', 
+            fontSize: '1.1em',
+            color: '#155724',
+            fontWeight: 'bold'
+          }}>
+            <strong>TỔNG CỘNG:</strong>
+            <span className="total-amount" style={{ marginLeft: '10px' }}>{formatCurrency(formData.TongTienThuoc + tienKham)}</span>
+          </div>
         </div>
 
         {/* Form Actions */}
         <div className="form-actions">
-          <button type="submit" disabled={loading} className="btn-submit">
-            {loading ? "Đang xử lý..." : (isEditMode ? "Cập nhật" : "Tạo phiếu")}
-          </button>
+          {!isPaid && (
+            <button type="submit" disabled={loading} className="btn-submit">
+              {loading ? "Đang xử lý..." : (isEditMode ? "Cập nhật" : "Tạo phiếu")}
+            </button>
+          )}
           {onCancel && (
             <button type="button" onClick={onCancel} className="btn-cancel">
-              Hủy
+              {isPaid ? "Đóng" : "Hủy"}
             </button>
           )}
         </div>
