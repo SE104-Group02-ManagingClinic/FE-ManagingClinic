@@ -534,7 +534,7 @@ const ExamineForm = ({ initialData, initialPatient, onSubmit, onCancel }) => {
         </div>
       )}
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} style={{ maxHeight: "70vh", overflowY: "auto" }}>
         {/* Patient Search Section */}
         <div className="patient-search-section">
           {/* Hiển thị thông báo auto-fill */}
