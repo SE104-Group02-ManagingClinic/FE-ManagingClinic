@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import "./Admin.css";
-import { useToast } from "../../contexts/ToastContext";
 import { useAuth } from "../../contexts/AuthContext";
+import PermissionGuard from "../../components/PermissionGuard";
 import UserManagementTab from "./UserManagementTab";
 import GroupManagementTab from "./GroupManagementTab";
 import PermissionManagementTab from "./PermissionManagementTab";
@@ -10,26 +10,6 @@ import SystemSettingsTab from "./SystemSettingsTab";
 const Admin = () => {
   const [activeTab, setActiveTab] = useState("users");
   const { user } = useAuth();
-  const { showError } = useToast();
-
-  // Kiểm tra quyền admin
-  useEffect(() => {
-    if (!user || user.MaNhom !== "GR001") {
-      showError("Bạn không có quyền truy cập trang này!");
-    }
-  }, [user, showError]);
-
-  // Nếu không phải admin, không render gì cả
-  if (!user || user.MaNhom !== "GR001") {
-    return (
-      <div className="admin-container">
-        <div className="admin-unauthorized">
-          <h2>⛔ Truy cập bị từ chối</h2>
-          <p>Bạn không có quyền truy cập trang quản trị.</p>
-        </div>
-      </div>
-    );
-  }
 
   const tabs = [
     { id: "users", label: "Quản lý người dùng", icon: "👥" },
@@ -38,11 +18,11 @@ const Admin = () => {
     { id: "settings", label: "Tham số hệ thống", icon: "⚙️" },
   ];
 
-  return (
+  const adminContent = (
     <div className="admin-container">
       <div className="admin-header">
         <h1>🛠️ Quản trị hệ thống</h1>
-        <p>Chào mừng, <strong>{user.TenDangNhap}</strong> - Administrator</p>
+        <p>Chào mừng, <strong>{user?.TenDangNhap}</strong> - Administrator</p>
       </div>
 
       <div className="admin-tabs">
@@ -65,6 +45,23 @@ const Admin = () => {
         {activeTab === "settings" && <SystemSettingsTab />}
       </div>
     </div>
+  );
+
+  return (
+    <PermissionGuard
+      feature={['user-list', 'user-create', 'user-edit', 'user-delete', 'user-group-manage', 'permission-assign', 'argument-manage']}
+      mode="any"
+      fallback={
+        <div className="admin-container">
+          <div className="admin-unauthorized">
+            <h2>⛔ Truy cập bị từ chối</h2>
+            <p>Bạn không có quyền truy cập trang quản trị.</p>
+          </div>
+        </div>
+      }
+    >
+      {adminContent}
+    </PermissionGuard>
   );
 };
 

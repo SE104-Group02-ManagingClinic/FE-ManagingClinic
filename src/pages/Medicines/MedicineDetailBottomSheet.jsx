@@ -23,7 +23,7 @@ const MedicineDetailBottomSheet = ({ isOpen, medicine, onClose, onEdit, onDelete
           </button>
         </div>
 
-        <div className="medicine-detail-body">
+        <div className="medicine-detail-body" >
           <div className="detail-row">
             <span className="detail-label">Mã thuốc:</span>
             <span className="detail-value">{medicine.MaThuoc}</span>

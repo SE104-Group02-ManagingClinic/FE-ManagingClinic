@@ -2,22 +2,22 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { SIDEBAR_ITEMS } from '../../config/permissions';
 
 /**
  * Component bảo vệ route dựa trên phân quyền
  * 
- * Mô hình: NGUOIDUNG → NHOMNGUOIDUNG → PHANQUYEN → CHUCNANG
+ * Kiểm tra quyền theo feature codes từ backend
+ * Nếu user có BẤT KÌ 1 feature nào thuộc route đó → cho phép truy cập
  * 
  * @param {React.ReactNode} children - Component con cần bảo vệ
- * @param {string} maChucNang - Mã chức năng yêu cầu (optional nếu dùng path)
  * @param {string} redirectTo - Route redirect khi không có quyền
  */
 const ProtectedRoute = ({ 
-  children, 
-  maChucNang,
+  children,
   redirectTo = '/home' 
 }) => {
-  const { isAuthenticated, checkPermission, checkRouteAccess, loading } = useAuth();
+  const { isAuthenticated, hasAnyFeature, loading } = useAuth();
   const location = useLocation();
 
   // Đang load thông tin user
@@ -39,13 +39,17 @@ const ProtectedRoute = ({
     return <Navigate to="/" state={{ from: location }} replace />;
   }
 
-  // Kiểm tra quyền theo maChucNang nếu được cung cấp
-  if (maChucNang && !checkPermission(maChucNang)) {
-    return <Navigate to={redirectTo} replace />;
+  // Tìm route config theo pathname
+  const routeConfig = SIDEBAR_ITEMS.find(item => item.path === location.pathname);
+  
+  // Nếu là trang public (như /home) → cho phép truy cập
+  if (!routeConfig || routeConfig.public) {
+    return children;
   }
 
-  // Kiểm tra quyền theo path hiện tại
-  if (!maChucNang && !checkRouteAccess(location.pathname)) {
+  // Kiểm tra user có ít nhất 1 feature thuộc route này không
+  if (!hasAnyFeature(routeConfig.features)) {
+    console.warn(`🚫 User không có quyền truy cập ${location.pathname}`);
     return <Navigate to={redirectTo} replace />;
   }
 
