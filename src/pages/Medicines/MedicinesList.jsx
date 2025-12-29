@@ -278,7 +278,7 @@ const MedicinesList = () => {
                 <h3>Chi tiết loại thuốc</h3>
               </div>
 
-              <div className="detail-body">
+              <div className="detail-body" style ={{ maxHeight: "75vh", overflowY: "auto" }}>
                 <div className="detail-row">
                   <span className="detail-label">Mã thuốc:</span>
                   <span className="detail-value">{viewingMedicine.MaThuoc}</span>
