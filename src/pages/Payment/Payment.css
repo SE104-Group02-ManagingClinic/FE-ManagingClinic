@@ -135,6 +135,27 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  max-height: calc(100vh - 360px);
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.exam-forms-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.exam-forms-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.exam-forms-list::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 10px;
+}
+
+.exam-forms-list::-webkit-scrollbar-thumb:hover {
+  background: #999;
 }
 
 .exam-forms-list .loading-text,
