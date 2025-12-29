@@ -30,6 +30,7 @@ const Payment = () => {
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [takeMedicine, setTakeMedicine] = useState(true); // Mặc định lấy thuốc
   const [tienKham, setTienKham] = useState(0); // Tiền khám từ tham số hệ thống
+  const [medicineCache, setMedicineCache] = useState({}); // Cache tổng tiền thuốc cho các phiếu khám đã thanh toán
 
   // Load tiền khám từ tham số hệ thống
   useEffect(() => {
@@ -90,9 +91,33 @@ const Payment = () => {
     try {
       const detail = await getExamFormById(examForm.MaPKB);
       setExamFormDetail(detail);
+      // Cache tổng tiền thuốc
+      setMedicineCache(prev => ({
+        ...prev,
+        [examForm.MaPKB]: detail.TongTienThuoc || 0
+      }));
       setSideSheetOpen(true);
     } catch (err) {
       showError("Lỗi khi tải chi tiết phiếu khám");
+    }
+  };
+
+  // Load tổng tiền thuốc cho phiếu khám đã thanh toán
+  const loadMedicineCostForPaidForm = async (maPKB) => {
+    if (medicineCache[maPKB]) {
+      return medicineCache[maPKB];
+    }
+    try {
+      const detail = await getExamFormById(maPKB);
+      const tongTien = detail.TongTienThuoc || 0;
+      setMedicineCache(prev => ({
+        ...prev,
+        [maPKB]: tongTien
+      }));
+      return tongTien;
+    } catch (err) {
+      console.error("Lỗi khi tải chi tiết phiếu khám:", err);
+      return 0;
     }
   };
 
@@ -221,6 +246,12 @@ const Payment = () => {
             key={examForm.MaPKB} 
             className={`exam-form-card ${examForm.MaHD ? 'paid' : 'unpaid'}`}
             onClick={() => handleSelectExamForm(examForm)}
+            onMouseEnter={() => {
+              // Tải dữ liệu khi hover vào phiếu khám đã thanh toán
+              if (examForm.MaHD && !medicineCache[examForm.MaPKB]) {
+                loadMedicineCostForPaidForm(examForm.MaPKB);
+              }
+            }}
           >
             <div className="card-header">
               <span className="pkb-code">{examForm.MaPKB}</span>
@@ -242,7 +273,7 @@ const Payment = () => {
               {examForm.MaHD && (
                 <>
                   <span className="total-amount">Tổng tiền:</span>
-                  <span className="amount-value">{formatCurrency(tienKham + (examForm.TongTienThuoc || 0))}</span>
+                  <span className="amount-value">{formatCurrency(tienKham + (medicineCache[examForm.MaPKB] || 0))}</span>
                 </>
               )}
               {!examForm.MaHD && (
