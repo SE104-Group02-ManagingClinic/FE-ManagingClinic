@@ -101,6 +101,7 @@ export const SIDEBAR_ITEMS = [
     label: 'Thanh toán',
     path: '/payment',
     maChucNang: ['CN011', 'CN012'], // Lập hóa đơn, Quản lý hóa đơn
+    requiredFeatures: ['invoice-list', 'invoice-create'], // Cũng check features
     public: false,
   },
   {
@@ -108,6 +109,7 @@ export const SIDEBAR_ITEMS = [
     label: 'Báo cáo',
     path: '/statistics',
     maChucNang: ['CN013', 'CN014'],
+    requiredFeatures: ['report-revenue', 'report-medicine-usage'], // Cũng check features
     public: false,
   },
   {
@@ -193,11 +195,13 @@ export const canAccessRoute = (path, userPermissions = []) => {
  * Lấy danh sách sidebar items mà user có quyền truy cập
  * @param {Array<string>} userPermissions - Danh sách mã chức năng user được phép
  * @param {string} userGroup - Mã nhóm người dùng (để check adminOnly)
+ * @param {Array<string>} userFeatures - Danh sách features/components của user (từ backend)
  * @returns {Array}
  */
-export const getAccessibleSidebarItems = (userPermissions = [], userGroup = null) => {
+export const getAccessibleSidebarItems = (userPermissions = [], userGroup = null, userFeatures = []) => {
   console.log('🔍 Checking sidebar permissions. User has:', userPermissions);
   console.log('👤 User group:', userGroup);
+  console.log('✨ User features:', userFeatures.length > 0 ? userFeatures.slice(0, 5) + '...' : '(none)');
   
   return SIDEBAR_ITEMS.filter((item) => {
     // Nếu item chỉ dành cho admin, kiểm tra user có phải admin không
@@ -211,8 +215,20 @@ export const getAccessibleSidebarItems = (userPermissions = [], userGroup = null
       return true;
     }
     
-    const hasAccess = hasPermission(item.maChucNang, userPermissions);
-    console.log(`${hasAccess ? '✅' : '❌'} ${item.label}: Required ${JSON.stringify(item.maChucNang)}`);
+    // ✅ Check bằng permissions (MaChucNang)
+    const hasPermission_check = hasPermission(item.maChucNang, userPermissions);
+    
+    // ✅ Check bằng features nếu có định nghĩa (cho phép cả 2 cách)
+    let hasFeatureAccess = true; // Default: cho phép nếu không định nghĩa features
+    if (item.requiredFeatures && Array.isArray(item.requiredFeatures)) {
+      // Cần ít nhất 1 feature từ danh sách
+      hasFeatureAccess = item.requiredFeatures.some(feature => userFeatures.includes(feature));
+    }
+    
+    // User phải có quyền HOẶC có feature
+    const hasAccess = hasPermission_check || hasFeatureAccess;
+    console.log(`${hasAccess ? '✅' : '❌'} ${item.label}: Perms=${hasPermission_check} | Features=${hasFeatureAccess}`);
+    
     return hasAccess;
   });
 };

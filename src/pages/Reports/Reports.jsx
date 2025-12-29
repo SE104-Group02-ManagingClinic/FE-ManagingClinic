@@ -6,7 +6,18 @@ import MedicineUsageReportList from "./MedicineUsageReportList";
 import RevenueReportList from "./RevenueReportList";
 
 const Reports = () => {
-  const { checkFeature } = useAuth();
+  const { checkFeature, features } = useAuth();
+  
+  // Debug: Log features khi Reports load
+  useEffect(() => {
+    console.group('📊 Reports Page - Feature Check');
+    console.log('🔍 All features available:', features);
+    console.log('📋 Checking specific features:');
+    console.log('  - report-medicine-usage:', checkFeature('report-medicine-usage'));
+    console.log('  - report-revenue:', checkFeature('report-revenue'));
+    console.groupEnd();
+  }, [features]);
+  
   const canViewMedicineUsage = checkFeature('report-medicine-usage');
   const canViewRevenue = checkFeature('report-revenue');
   

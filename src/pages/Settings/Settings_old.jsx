@@ -11,7 +11,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import PermissionGuard from "../../components/PermissionGuard";
 
 const Settings = () => {
-  const [activeTab, setActiveTab] = useState("argument");
+  const [activeTab, setActiveTab] = useState("argument"); // Default tab
   const { checkFeature } = useAuth();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -20,17 +20,6 @@ const Settings = () => {
     TiLeTinhDonGiaBan: 0,
     TienKham: 0,
   });
-
-  // Form states for editing
-  const [editingSoBenhNhan, setEditingSoBenhNhan] = useState(false);
-  const [editingTiLe, setEditingTiLe] = useState(false);
-  const [editingTienKham, setEditingTienKham] = useState(false);
-
-  const [tempSoBenhNhan, setTempSoBenhNhan] = useState(0);
-  const [tempTiLe, setTempTiLe] = useState(0);
-  const [tempTienKham, setTempTienKham] = useState(0);
-
-  const { showSuccess, showError } = useToast();
 
   // Check quyền xem từng tab
   const canViewArgument = checkFeature('argument-manage');
@@ -51,7 +40,18 @@ const Settings = () => {
     } else if (!visibleTabs.includes(activeTab)) {
       setActiveTab(visibleTabs[0]);
     }
-  }, [canViewArgument, canViewCatalog, activeTab]);
+  }, [canViewArgument, canViewCatalog]);
+
+  // Form states for editing
+  const [editingSoBenhNhan, setEditingSoBenhNhan] = useState(false);
+  const [editingTiLe, setEditingTiLe] = useState(false);
+  const [editingTienKham, setEditingTienKham] = useState(false);
+
+  const [tempSoBenhNhan, setTempSoBenhNhan] = useState(0);
+  const [tempTiLe, setTempTiLe] = useState(0);
+  const [tempTienKham, setTempTienKham] = useState(0);
+
+  const { showSuccess, showError } = useToast();
 
   // Fetch tham so on mount
   useEffect(() => {
@@ -157,18 +157,46 @@ const Settings = () => {
     }).format(value);
   };
 
-  const renderArgumentTab = () => (
-    <PermissionGuard
-      feature="argument-manage"
-      fallback={
-        <div className="settings-loading">
-          Bạn không có quyền truy cập tham số hệ thống
+  const settingsContent = (
+    <div className="settings-container">
+      <div className="settings-header">
+        <h2>⚙️ Cài đặt hệ thống</h2>
+      </div>
+
+      {/* Tab Navigation */}
+      {(canViewArgument || canViewCatalog) && (
+        <div className="settings-tabs">
+          {canViewArgument && (
+            <button
+              className={`settings-tab ${activeTab === 'argument' ? 'active' : ''}`}
+              onClick={() => setActiveTab('argument')}
+              data-feature="argument-manage"
+            >
+              🔧 Tham số hệ thống
+            </button>
+          )}
+          {canViewCatalog && (
+            <button
+              className={`settings-tab ${activeTab === 'catalog' ? 'active' : ''}`}
+              onClick={() => setActiveTab('catalog')}
+              data-feature="disease-list,unit-list,usage-list"
+            >
+              📚 Danh mục
+            </button>
+          )}
         </div>
-      }
-    >
-      {loading ? (
-        <div className="settings-loading">Đang tải...</div>
-      ) : (
+      )}
+
+      {/* Tab Content */}
+      {activeTab === 'argument' && (
+        <PermissionGuard
+          feature="argument-manage"
+          fallback={
+            <div className="settings-loading">
+              Bạn không có quyền truy cập tham số hệ thống
+            </div>
+          }
+        >
         <div className="settings-content">
           <div className="settings-section">
             <h3>Tham số quy định</h3>
@@ -324,66 +352,26 @@ const Settings = () => {
           </div>
         </div>
       )}
-    </PermissionGuard>
-  );
-
-  const renderCatalogTab = () => (
-    <PermissionGuard
-      feature={['disease-list', 'disease-create', 'disease-edit', 'disease-delete', 'unit-list', 'unit-create', 'unit-edit', 'unit-delete', 'usage-list', 'usage-create', 'usage-edit', 'usage-delete']}
-      mode="any"
-      fallback={
-        <div className="settings-loading">
-          Bạn không có quyền truy cập danh mục
-        </div>
-      }
-    >
-      <div className="settings-content">
-        <p>Danh mục (Disease, Unit, Usage) sẽ được hiển thị ở đây</p>
-      </div>
-    </PermissionGuard>
+    </div>
   );
 
   return (
-    <div className="settings-container">
-      <div className="settings-header">
-        <h2>⚙️ Cài đặt hệ thống</h2>
-      </div>
-
-      {/* Nếu user không có bất kỳ quyền nào */}
-      {!canViewArgument && !canViewCatalog ? (
-        <div className="settings-loading">
-          ⛔ Bạn không có quyền truy cập cài đặt hệ thống. Vui lòng liên hệ quản trị viên.
-        </div>
-      ) : (
-        <>
-          {/* Tab Navigation */}
-          <div className="settings-tabs">
-            {canViewArgument && (
-              <button
-                className={`settings-tab ${activeTab === 'argument' ? 'active' : ''}`}
-                onClick={() => setActiveTab('argument')}
-                data-feature="argument-manage"
-              >
-                🔧 Tham số hệ thống
-              </button>
-            )}
-            {canViewCatalog && (
-              <button
-                className={`settings-tab ${activeTab === 'catalog' ? 'active' : ''}`}
-                onClick={() => setActiveTab('catalog')}
-                data-feature="disease-list,unit-list,usage-list"
-              >
-                📚 Danh mục
-              </button>
-            )}
+    <PermissionGuard
+      feature={['disease-list', 'disease-create', 'disease-edit', 'disease-delete', 'unit-list', 'unit-create', 'unit-edit', 'unit-delete', 'usage-list', 'usage-create', 'usage-edit', 'usage-delete', 'argument-manage']}
+      mode="any"
+      fallback={
+        <div className="settings-container">
+          <div className="settings-header">
+            <h2>⚙️ Cài đặt hệ thống</h2>
           </div>
-
-          {/* Tab Content */}
-          {activeTab === 'argument' && renderArgumentTab()}
-          {activeTab === 'catalog' && renderCatalogTab()}
-        </>
-      )}
-    </div>
+          <div className="settings-loading">
+            Bạn không có quyền truy cập cài đặt hệ thống
+          </div>
+        </div>
+      }
+    >
+      {settingsContent}
+    </PermissionGuard>
   );
 };
 
