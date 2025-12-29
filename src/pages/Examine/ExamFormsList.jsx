@@ -19,7 +19,7 @@ const ExamFormsList = () => {
 
   useEffect(() => {
     fetchExamForms();
-  }, [selectedDate, refreshTriggers.examForms]);
+  }, [selectedDate, refreshTriggers.examForms, refreshTriggers.invoices]);
 
   const fetchExamForms = async () => {
     try {

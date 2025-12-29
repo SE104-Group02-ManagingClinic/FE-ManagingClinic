@@ -97,14 +97,14 @@ export const SIDEBAR_ITEMS = [
     public: false,
   },
   {
-    icon: '�',
+    icon: '💵',
     label: 'Thanh toán',
     path: '/payment',
     maChucNang: ['CN011', 'CN012'], // Lập hóa đơn, Quản lý hóa đơn
     public: false,
   },
   {
-    icon: '�📊',
+    icon: '📊',
     label: 'Báo cáo',
     path: '/statistics',
     maChucNang: ['CN013', 'CN014'],

@@ -212,6 +212,15 @@
   box-shadow: 0 4px 8px rgba(153, 153, 153, 0.3);
 }
 
+/* Exam History Section */
+.exam-history-section {
+  margin-top: 20px;
+  border-top: 2px solid #e0e0e0;
+  padding-top: 20px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .action-buttons {
@@ -226,4 +235,62 @@
   .patient-detail h2 {
     font-size: 18px;
   }
+
+  .exam-history-section {
+    max-height: 300px;
+  }
+}
+
+/* Styles for API exam history from PhieuKhamBenh */
+.api-exam-history-section {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  border-left: 4px solid #4CAF50;
+}
+
+.api-exam-history-section h4 {
+  margin: 0 0 15px 0;
+  color: #333;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.api-exam-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.api-exam-history-item {
+  padding: 12px;
+  background-color: #ffffff;
+  border-radius: 6px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.api-exam-history-item .info-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.api-exam-history-item .info-row:last-child {
+  margin-bottom: 0;
+}
+
+.api-exam-history-item .label {
+  font-weight: 600;
+  color: #666;
+  min-width: 100px;
+}
+
+.api-exam-history-item .value {
+  color: #333;
+  flex: 1;
+  text-align: right;
 }
