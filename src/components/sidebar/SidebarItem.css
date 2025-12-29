@@ -74,3 +74,9 @@ opacity:0%;
 .statistics .indicator {
   background-color: #ab47bc; /* Tím */
 }
+.payment .indicator {
+  background-color: #ff9800; /* Cam */
+}
+.admin .indicator {
+  background-color: #9c27b0; /* Tím đậm */
+}
